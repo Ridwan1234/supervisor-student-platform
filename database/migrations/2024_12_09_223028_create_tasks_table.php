@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('tasks', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('assigned_by')->constrained('users')->onDelete('cascade'); // Foreign key for the user who assigned the task
+            $table->foreignId('assigned_to')->constrained('users')->onDelete('cascade'); // Foreign key for the student assigned the task
+            $table->string('title');
+            $table->text('description');
+            $table->date('deadline');
+            $table->enum('status', ['Pending', 'In Progress', 'Completed'])->default('Pending');
+            $table->timestamps();
+        });
+    }
+
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('tasks');
+    }
+};
