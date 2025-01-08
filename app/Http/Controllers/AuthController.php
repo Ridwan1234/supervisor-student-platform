@@ -22,7 +22,7 @@ class AuthController extends Controller
     $validated = $request->validate([
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:8|confirmed', // The confirmed rule checks for password confirmation
+        'password' => 'required|string|min:8|confirmed',
         'role' => 'required|in:supervisor,student',
     ]);
 
@@ -41,20 +41,20 @@ class AuthController extends Controller
 
 public function login(Request $request)
 {
-    // Validate the login form data
+
     $validated = $request->validate([
         'email' => 'required|string|email',
         'password' => 'required|string',
     ]);
 
-    // Attempt authentication
+
     if (!Auth::attempt($validated)) {
         throw ValidationException::withMessages([
             'email' => ['The provided credentials are incorrect.'],
         ]);
     }
 
-    // Get the authenticated user
+
     $user = Auth::user();
 
     // Generate API token for the authenticated user
