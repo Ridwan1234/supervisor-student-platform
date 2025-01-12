@@ -7,6 +7,9 @@ import Home from '../components/Home.vue';
 import SupervisorDashboard from '../components/Supervisor/SupervisorDashboard.vue';
 import StudentDashboard from '../components/Student/StudentDashboard.vue';
 import Tasks from '../components/Supervisor/Task.vue';
+import ExpertiseManagement from '../components/Supervisor/ExpertiseManagement.vue';
+import ProjectManagement from '../components/Supervisor/ProjectManagement.vue';
+import Notifications from '../components/NotificationBell.vue';
 import NotFound from '../components/NotFound.vue';
 
 const routes = [
@@ -41,6 +44,9 @@ const routes = [
   { path: "/student-dashboard", name: "student-dashboard", component: StudentDashboard },
   { path: "/register", name: "register", component: Register },
   { path: "/tasks", name: "tasks", component: Tasks },
+  { path: "/expertise-managements", name: "expertise-managements", component: ExpertiseManagement },
+  { path: "/project-managements", name: "project-managements", component: ProjectManagement },
+  { path: "/notifications", name: "notifications", component: Notifications },
   { path: "/:pathMatch(.*)*", name: "NotFound", component: NotFound },
 ];
 

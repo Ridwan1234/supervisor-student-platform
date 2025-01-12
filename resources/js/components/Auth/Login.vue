@@ -35,7 +35,7 @@
         <div class="auth-links">
           <a href="#">Forgot Password?</a>
           <p>
-            Don’t have an account? <router-link to="/register">Sign Up</router-link>
+            Dont have an account? <router-link to="/register">Sign Up</router-link>
           </p>
         </div>
       </div>
@@ -106,11 +106,12 @@ export default {
   },
   methods: {
     async handleLogin() {
+      axios.defaults.baseURL = 'http://supervisor-student-platform.test';
       const toast = useToast(); // Initialize the toast instance
 
       try {
         // Send POST request to login API
-        const response = await axios.post('http://127.0.0.1:8000/api/login', this.form);
+        const response = await axios.post("/api/login", this.form);
 
         // Save the received token and user data to localStorage
         const token = response.data.token;

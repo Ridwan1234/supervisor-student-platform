@@ -17,8 +17,9 @@ return new class extends Migration
             $table->foreignId('assigned_to')->constrained('users')->onDelete('cascade'); // Foreign key for the student assigned the task
             $table->string('title');
             $table->text('description');
-            $table->date('deadline');
             $table->enum('status', ['Pending', 'In Progress', 'Completed'])->default('Pending');
+            $table->foreignId('group_id')->nullable()->constrained('groups')->onDelete('set null'); // Group
+            $table->timestamp('due_date');
             $table->timestamps();
         });
     }

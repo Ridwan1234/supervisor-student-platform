@@ -26,4 +26,9 @@ class Task extends Model
     {
         return $this->hasMany(TaskHistory::class);
     }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
 }

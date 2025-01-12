@@ -5,6 +5,8 @@
         <router-link :to="{ name: 'supervisor-dashboard' }" class="menu-item">Home</router-link>
         <router-link to="#" class="menu-item">Projects</router-link>
         <router-link to="#" class="menu-item">Messages</router-link>
+        <router-link :to="{name: 'expertise-managements'}" class="menu-item">Expertise</router-link>
+        <router-link :to="{name: 'project-managements'}" class="menu-item">Project</router-link>
         <!-- <router-link to="/tasks" class="menu-item">Tasks</router-link> -->
         <router-link :to="{ name: 'tasks' }" class="menu-item">Tasks</router-link>
         <router-link to="#" class="menu-item">Settings</router-link>

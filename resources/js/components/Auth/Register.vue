@@ -91,6 +91,8 @@
     },
     methods: {
       handleRegister() {
+      axios.defaults.baseURL = 'http://supervisor-student-platform.test';
+
         const toast = useToast();
 
         // Check if password and password confirmation match
@@ -108,7 +110,7 @@
         };
 
         axios
-          .post("http://127.0.0.1:8000/api/register", formData)
+          .post("/api/register", formData)
           .then((response) => {
             toast.success(response.data.message || "Registration successful!");
             this.$router.push("/login");
