@@ -3,6 +3,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExpertiseController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProjectController;
@@ -104,6 +105,12 @@ Route::post('/groups', [GroupController::class, 'create']);
 Route::get('/groups', [GroupController::class, 'getGroups']);
 Route::post('/groups/{id}/messages', [MessageController::class, 'fetchGroupMessages']);
 Route::post('/groups/{id}/send-message', [MessageController::class, 'sendGroupMessage']);
+
+
+Route::post('/files/upload', [FileController::class, 'upload']);
+Route::get('/files', [FileController::class, 'index']);
+Route::get('/files/download/{id}', [FileController::class, 'download']);
+Route::delete('/files/{id}', [FileController::class, 'delete']);
 
 
 

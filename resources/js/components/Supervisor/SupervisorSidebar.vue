@@ -9,6 +9,7 @@
         <router-link :to="{name: 'project-managements'}" class="menu-item">Project</router-link>
         <!-- <router-link to="/tasks" class="menu-item">Tasks</router-link> -->
         <router-link :to="{ name: 'tasks' }" class="menu-item">Tasks</router-link>
+        <router-link :to="{ name: 'files' }" class="menu-item">File</router-link>
         <router-link to="#" class="menu-item">Settings</router-link>
         <router-link :to="{ name: 'logout' }" class="menu-item">Logout</router-link>
 

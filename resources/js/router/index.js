@@ -9,6 +9,7 @@ import StudentDashboard from '../components/Student/StudentDashboard.vue';
 import Tasks from '../components/Supervisor/Task.vue';
 import ExpertiseManagement from '../components/Supervisor/ExpertiseManagement.vue';
 import ProjectManagement from '../components/Supervisor/ProjectManagement.vue';
+import FileManagement from '../components/FileList.vue';
 import Notifications from '../components/NotificationBell.vue';
 import NotFound from '../components/NotFound.vue';
 
@@ -46,6 +47,7 @@ const routes = [
   { path: "/tasks", name: "tasks", component: Tasks },
   { path: "/expertise-managements", name: "expertise-managements", component: ExpertiseManagement },
   { path: "/project-managements", name: "project-managements", component: ProjectManagement },
+  { path: "/files", name: "files", component: FileManagement },
   { path: "/notifications", name: "notifications", component: Notifications },
   { path: "/:pathMatch(.*)*", name: "NotFound", component: NotFound },
 ];

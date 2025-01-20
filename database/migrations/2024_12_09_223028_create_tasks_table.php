@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description');
             $table->enum('status', ['Pending', 'In Progress', 'Completed'])->default('Pending');
-            $table->foreignId('group_id')->nullable()->constrained('groups')->onDelete('set null'); // Group
+            $table->foreignId('group_id')->nullable(); // Group
             $table->timestamp('due_date');
             $table->timestamps();
         });

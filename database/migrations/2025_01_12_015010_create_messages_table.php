@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('sender_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('receiver_id')->nullable()->constrained('users')->onDelete('cascade'); // For direct messages
-            $table->foreignId('group_id')->nullable()->constrained('groups')->onDelete('cascade');  // For group chats
+            $table->foreignId('group_id')->nullable();  // For group chats
             $table->text('message');
             $table->timestamps();
         });
