@@ -57,14 +57,24 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 
 // Route::get('/expertise', [ExpertiseController::class, 'index']);
 Route::get('/expertise', [ExpertiseController::class, 'index']);
-    Route::post('/expertise', [ExpertiseController::class, 'store']);
-    Route::delete('/expertise/{id}', [ExpertiseController::class, 'destroy']);
+Route::post('/expertise', [ExpertiseController::class, 'store']);
+Route::get('/expertise/{id}', [ExpertiseController::class, 'show']);
+Route::put('/expertise/{id}', [ExpertiseController::class, 'update']);
+Route::delete('/expertise/{id}', [ExpertiseController::class, 'destroy']);
 
-    Route::get('/projects', [ProjectController::class, 'index']);
-    Route::post('/projects', [ProjectController::class, 'store']);
-    Route::post('/assign-student', [ProjectController::class, 'assignStudent']);
-    Route::get('/students', [ProjectController::class, 'availableStudents']);
+// Task routes
+Route::get('/tasks', [TaskController::class, 'index']);
+Route::get('/tasks/{id}', [TaskController::class, 'show']);
+Route::post('/tasks', [TaskController::class, 'create']);
+Route::put('/tasks/{id}', [TaskController::class, 'update']);
+Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
+Route::patch('/tasks/{id}/status', [TaskController::class, 'updateStatus']);
 
+// Project routes
+Route::get('/projects', [ProjectController::class, 'index']);
+Route::post('/projects', [ProjectController::class, 'store']);
+Route::post('/assign-student', [ProjectController::class, 'assignStudent']);
+Route::get('/students', [ProjectController::class, 'availableStudents']);
 
 Route::middleware('auth:sanctum')->group(function () {
     // Route::get('/profile', [ProfileController::class, 'show']);
@@ -90,27 +100,75 @@ Route::get('/notifications', function () {
 //     return auth()->user()->notifications;
 // });
 
-Route::post('/notifications/mark-read', function () {
-    auth()->user()->unreadNotifications->markAsRead();
+Route::post('/notifications/mark-read', function (Request $request) {
+    $request->user()->unreadNotifications->markAsRead();
     return response()->json(['message' => 'Notifications marked as read.']);
-})->middleware('auth');
+})->middleware('auth:sanctum');
 
 Route::get('/projects/{id}/progress', [ProjectProgressController::class, 'index']);
 Route::post('/projects/progress', [ProjectProgressController::class, 'store']);
 
-Route::post('/messages', [MessageController::class, 'fetchMessages']);
-Route::post('/send-message', [MessageController::class, 'sendMessage']);
+// Enhanced Messaging Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/messages', [MessageController::class, 'fetchMessages']);
+    Route::post('/send-message', [MessageController::class, 'sendMessage']);
+    Route::get('/conversations', [MessageController::class, 'getConversations']);
+    Route::post('/messages/mark-read', [MessageController::class, 'markAsRead']);
+    Route::delete('/messages/{id}', [MessageController::class, 'deleteMessage']);
+    
+    // Group messaging
+    Route::post('/groups', [GroupController::class, 'create']);
+    Route::get('/groups', [GroupController::class, 'getGroups']);
+    Route::get('/groups/{id}', [GroupController::class, 'getGroup']);
+    Route::put('/groups/{id}', [GroupController::class, 'updateGroup']);
+    Route::post('/groups/{id}/members', [GroupController::class, 'addMembers']);
+    Route::delete('/groups/{groupId}/members/{memberId}', [GroupController::class, 'removeMember']);
+    Route::post('/groups/{id}/leave', [GroupController::class, 'leaveGroup']);
+    Route::delete('/groups/{id}', [GroupController::class, 'deleteGroup']);
+    Route::get('/groups/{id}/stats', [GroupController::class, 'getGroupStats']);
+    Route::get('/available-users', [GroupController::class, 'getAvailableUsers']);
+    Route::post('/groups/{id}/messages', [MessageController::class, 'fetchGroupMessages']);
+    Route::post('/groups/{id}/send-message', [MessageController::class, 'sendGroupMessage']);
+});
 
-Route::post('/groups', [GroupController::class, 'create']);
-Route::get('/groups', [GroupController::class, 'getGroups']);
-Route::post('/groups/{id}/messages', [MessageController::class, 'fetchGroupMessages']);
-Route::post('/groups/{id}/send-message', [MessageController::class, 'sendGroupMessage']);
+// Enhanced File Management Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/files', [FileController::class, 'index']);
+    Route::post('/files/upload', [FileController::class, 'upload']);
+    Route::get('/files/download/{id}', [FileController::class, 'download']);
+    Route::delete('/files/{id}', [FileController::class, 'delete']);
+    Route::get('/files/folders', [FileController::class, 'getFolders']);
+    Route::get('/files/types', [FileController::class, 'getFileTypes']);
+    Route::get('/files/stats', [FileController::class, 'getFileStats']);
+});
 
+// Student API Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/student/projects', [App\Http\Controllers\Api\StudentController::class, 'getProjects']);
+    Route::get('/student/tasks', [App\Http\Controllers\Api\StudentController::class, 'getTasks']);
+    Route::put('/student/projects/{projectId}/progress', [App\Http\Controllers\Api\StudentController::class, 'updateProjectProgress']);
+    Route::put('/student/tasks/{taskId}/progress', [App\Http\Controllers\Api\StudentController::class, 'updateTaskProgress']);
+    Route::post('/student/tasks', [App\Http\Controllers\Api\StudentController::class, 'createTask']);
+});
 
-Route::post('/files/upload', [FileController::class, 'upload']);
-Route::get('/files', [FileController::class, 'index']);
-Route::get('/files/download/{id}', [FileController::class, 'download']);
-Route::delete('/files/{id}', [FileController::class, 'delete']);
+// Dashboard API Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/dashboard/stats', [App\Http\Controllers\Api\DashboardController::class, 'getDashboardStats']);
+    Route::get('/dashboard/overview-cards', [App\Http\Controllers\Api\DashboardController::class, 'getOverviewCards']);
+});
+
+// Supervisor API Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/supervisor/projects', [App\Http\Controllers\Api\SupervisorController::class, 'getProjects']);
+    Route::get('/supervisor/tasks', [App\Http\Controllers\Api\SupervisorController::class, 'getTasks']);
+    Route::get('/supervisor/students', [App\Http\Controllers\Api\SupervisorController::class, 'getStudents']);
+    Route::get('/supervisor/expertise', [App\Http\Controllers\Api\SupervisorController::class, 'getExpertise']);
+    Route::post('/supervisor/projects', [App\Http\Controllers\Api\SupervisorController::class, 'createProject']);
+    Route::post('/supervisor/tasks', [App\Http\Controllers\Api\SupervisorController::class, 'assignTask']);
+    Route::put('/supervisor/projects/{projectId}', [App\Http\Controllers\Api\SupervisorController::class, 'updateProject']);
+    Route::put('/supervisor/tasks/{taskId}', [App\Http\Controllers\Api\SupervisorController::class, 'updateTask']);
+    Route::get('/supervisor/available-students', [App\Http\Controllers\Api\SupervisorController::class, 'getAvailableStudents']);
+});
 
 
 

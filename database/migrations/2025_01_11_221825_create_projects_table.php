@@ -15,7 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description');
-            $table->foreignId('supervisor_id');
+            $table->foreignId('supervisor_id')->constrained('users')->onDelete('cascade');
+            $table->enum('status', ['not_started', 'in_progress', 'completed', 'on_hold'])->default('not_started');
+            $table->integer('progress')->default(0); // Progress percentage (0-100)
+            $table->date('start_date');
+            $table->date('due_date');
+            $table->timestamp('last_updated')->nullable();
             $table->timestamps();
         });
     }

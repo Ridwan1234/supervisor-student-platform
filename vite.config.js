@@ -5,13 +5,27 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
     plugins: [
         vue(),
-
         laravel({
             input: [ 'resources/js/app.js'],
             refresh: true,
         }),
-
-
     ],
+    define: {
+        'process.env': {},
+        global: 'globalThis',
+    },
+    resolve: {
+        alias: {
+            'process': 'process/browser',
+        },
+    },
+    optimizeDeps: {
+        include: ['bootstrap', 'process'],
+    },
+    server: {
+        hmr: {
+            host: 'localhost',
+        },
+    },
 });
     

@@ -7,25 +7,32 @@ import Home from '../components/Home.vue';
 import SupervisorDashboard from '../components/Supervisor/SupervisorDashboard.vue';
 import StudentDashboard from '../components/Student/StudentDashboard.vue';
 import Tasks from '../components/Supervisor/Task.vue';
+import TaskManagement from '../components/Supervisor/TaskManagement.vue';
 import ExpertiseManagement from '../components/Supervisor/ExpertiseManagement.vue';
 import ProjectManagement from '../components/Supervisor/ProjectManagement.vue';
-import FileManagement from '../components/FileList.vue';
+import FileManagement from '../components/FileManagement.vue';
+import Messaging from '../components/Messaging.vue';
+import StudentProject from '../components/Student/Project.vue';
+import StudentTask from '../components/Student/Task.vue';
 import Notifications from '../components/NotificationBell.vue';
 import NotFound from '../components/NotFound.vue';
 
 const routes = [
-  { path: "/",
+  { 
+    path: "/",
     name: "home",
     component: Home
-},
-{ path: "/login",
+  },
+  { 
+    path: "/login",
     name: "login",
     component: Login
-},
-{ path: "/logout",
+  },
+  { 
+    path: "/logout",
     name: "logout",
     component: Home
-},
+  },
   {
     path: "/dashboard",
     name: "dashboard",
@@ -41,15 +48,71 @@ const routes = [
       }
     },
   },
-  { path: "/supervisor-dashboard", name: "supervisor-dashboard", component: SupervisorDashboard },
-  { path: "/student-dashboard", name: "student-dashboard", component: StudentDashboard },
-  { path: "/register", name: "register", component: Register },
-  { path: "/tasks", name: "tasks", component: Tasks },
-  { path: "/expertise-managements", name: "expertise-managements", component: ExpertiseManagement },
-  { path: "/project-managements", name: "project-managements", component: ProjectManagement },
-  { path: "/files", name: "files", component: FileManagement },
-  { path: "/notifications", name: "notifications", component: Notifications },
-  { path: "/:pathMatch(.*)*", name: "NotFound", component: NotFound },
+  { 
+    path: "/supervisor-dashboard", 
+    name: "supervisor-dashboard", 
+    component: SupervisorDashboard 
+  },
+  { 
+    path: "/student-dashboard", 
+    name: "student-dashboard", 
+    component: StudentDashboard 
+  },
+  { 
+    path: "/register", 
+    name: "register", 
+    component: Register 
+  },
+  { 
+    path: "/tasks", 
+    name: "tasks", 
+    component: Tasks 
+  },
+  { 
+    path: "/task-management", 
+    name: "task-management", 
+    component: TaskManagement 
+  },
+  { 
+    path: "/expertise-management", 
+    name: "expertise-management", 
+    component: ExpertiseManagement 
+  },
+  { 
+    path: "/project-management", 
+    name: "project-management", 
+    component: ProjectManagement 
+  },
+  { 
+    path: "/file-management", 
+    name: "file-management", 
+    component: FileManagement 
+  },
+  { 
+    path: "/messaging", 
+    name: "messaging", 
+    component: Messaging 
+  },
+  { 
+    path: "/student-project", 
+    name: "student-project", 
+    component: StudentProject 
+  },
+  { 
+    path: "/student-task", 
+    name: "student-task", 
+    component: StudentTask 
+  },
+  { 
+    path: "/notifications", 
+    name: "notifications", 
+    component: Notifications 
+  },
+  { 
+    path: "/:pathMatch(.*)*", 
+    name: "NotFound", 
+    component: NotFound 
+  },
 ];
 
 const router = createRouter({

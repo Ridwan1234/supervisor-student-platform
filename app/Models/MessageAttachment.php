@@ -5,20 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class File extends Model
+class MessageAttachment extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name', 
-        'path', 
-        'type', 
-        'size', 
-        'uploaded_by', 
-        'project_id', 
-        'task_id',
-        'folder',
-        'description',
+        'message_id',
+        'name',
+        'path',
+        'type',
+        'size',
         'mime_type'
     ];
 
@@ -26,19 +22,9 @@ class File extends Model
         'size' => 'integer',
     ];
 
-    public function uploader()
+    public function message()
     {
-        return $this->belongsTo(User::class, 'uploaded_by');
-    }
-
-    public function project()
-    {
-        return $this->belongsTo(Project::class);
-    }
-
-    public function task()
-    {
-        return $this->belongsTo(Task::class);
+        return $this->belongsTo(Message::class);
     }
 
     public function getFormattedSizeAttribute()

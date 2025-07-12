@@ -1,216 +1,272 @@
 <template>
-    <div class="auth-container">
-      <div class="auth-card">
-        <h2>Register</h2>
-        <form @submit.prevent="handleRegister">
-          <!-- Name -->
-          <div class="form-group">
-            <label for="name">Name</label>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="text-center mb-4">
+        <h2 class="fw-bold text-primary mb-2">Create Account</h2>
+        <p class="text-muted">Join our platform to get started</p>
+      </div>
+      
+      <form @submit.prevent="handleRegister">
+        <!-- Name -->
+        <div class="mb-3">
+          <label for="name" class="form-label fw-semibold">Full Name</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-person"></i>
+            </span>
             <input
               type="text"
               id="name"
-              v-model="name"
-              placeholder="Enter your name"
+              v-model="form.name"
+              class="form-control"
+              placeholder="Enter your full name"
               required
             />
           </div>
+        </div>
 
-          <!-- Email -->
-          <div class="form-group">
-            <label for="email">Email</label>
+        <!-- Email -->
+        <div class="mb-3">
+          <label for="email" class="form-label fw-semibold">Email Address</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-envelope"></i>
+            </span>
             <input
               type="email"
               id="email"
-              v-model="email"
+              v-model="form.email"
+              class="form-control"
               placeholder="Enter your email"
               required
             />
           </div>
+        </div>
 
-          <!-- Password -->
-          <div class="form-group">
-            <label for="password">Password</label>
+        <!-- Role Selection -->
+        <div class="mb-3">
+          <label for="role" class="form-label fw-semibold">I am a</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-briefcase"></i>
+            </span>
+            <select id="role" v-model="form.role" class="form-select" required>
+              <option value="">Select your role</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="student">Student</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-3">
+          <label for="password" class="form-label fw-semibold">Password</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-lock"></i>
+            </span>
             <input
               type="password"
               id="password"
-              v-model="password"
-              placeholder="Enter your password"
+              v-model="form.password"
+              class="form-control"
+              placeholder="Create a password"
               required
             />
           </div>
+        </div>
 
-          <!-- Password Confirmation -->
-          <div class="form-group">
-            <label for="password_confirmation">Confirm Password</label>
+        <!-- Confirm Password -->
+        <div class="mb-3">
+          <label for="password_confirmation" class="form-label fw-semibold">Confirm Password</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-lock"></i>
+            </span>
             <input
               type="password"
               id="password_confirmation"
-              v-model="passwordConfirmation"
+              v-model="form.password_confirmation"
+              class="form-control"
               placeholder="Confirm your password"
               required
             />
           </div>
-
-          <!-- Role Dropdown -->
-          <div class="form-group">
-            <label for="role">Role</label>
-            <select id="role" v-model="role" required>
-              <option value="" disabled>Select Role</option>
-              <option value="student">Student</option>
-              <option value="supervisor">Supervisor</option>
-            </select>
-          </div>
-
-          <!-- Register Button -->
-          <button type="submit" class="btn-register">Register</button>
-        </form>
-
-        <!-- Links -->
-        <div class="auth-links">
-          <p>
-            Already have an account? <router-link to="/login">Login</router-link>
-          </p>
         </div>
+
+        <!-- Terms and Conditions -->
+        <div class="mb-4">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="terms" v-model="form.terms" required>
+            <label class="form-check-label" for="terms">
+              I agree to the <a href="#" class="text-decoration-none text-primary">Terms of Service</a> and 
+              <a href="#" class="text-decoration-none text-primary">Privacy Policy</a>
+            </label>
+          </div>
+        </div>
+
+        <!-- Register Button -->
+        <button 
+          type="submit" 
+          class="btn btn-primary w-100 mb-3 register-btn"
+          :disabled="loading"
+        >
+          <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ loading ? 'Creating Account...' : 'Create Account' }}
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="text-center mb-3">
+        <span class="text-muted">or</span>
+      </div>
+
+      <!-- Social Register -->
+      <div class="d-grid gap-2 mb-4">
+        <button class="btn btn-outline-secondary">
+          <i class="bi bi-google me-2"></i>
+          Continue with Google
+        </button>
+      </div>
+
+      <!-- Login Link -->
+      <div class="text-center">
+        <p class="mb-0">
+          Already have an account? 
+          <router-link to="/login" class="text-decoration-none text-primary fw-semibold">
+            Sign In
+          </router-link>
+        </p>
       </div>
     </div>
-  </template>
+  </div>
+</template>
 
-  <script>
-  import axios from "axios";
-  import { useToast } from "vue-toastification";
+<script>
+import axios from 'axios';
+import { useToast } from 'vue-toastification';
 
-  export default {
-    data() {
-      return {
-        name: "",
-        email: "",
-        password: "",
-        passwordConfirmation: "", // Add password confirmation field
-        role: "",
-      };
-    },
-    methods: {
-      handleRegister() {
-      axios.defaults.baseURL = 'http://supervisor-student-platform.test';
-
-        const toast = useToast();
-
-        // Check if password and password confirmation match
-        if (this.password !== this.passwordConfirmation) {
-          toast.error("Password and confirmation do not match.");
-          return;
-        }
-
-        const formData = {
-          name: this.name,
-          email: this.email,
-          password: this.password,
-          password_confirmation: this.passwordConfirmation, // Send the confirmation field to the backend
-          role: this.role,
-        };
-
-        axios
-          .post("/api/register", formData)
-          .then((response) => {
-            toast.success(response.data.message || "Registration successful!");
-            this.$router.push("/login");
-          })
-          .catch((error) => {
-            if (error.response && error.response.data.errors) {
-              for (const key in error.response.data.errors) {
-                toast.error(error.response.data.errors[key][0]);
-              }
-            } else {
-              toast.error("An error occurred during registration.");
-            }
-          });
+export default {
+  data() {
+    return {
+      form: {
+        name: '',
+        email: '',
+        password: '',
+        password_confirmation: '',
+        role: '',
+        terms: false,
       },
+      loading: false,
+    };
+  },
+  methods: {
+    async handleRegister() {
+      this.loading = true;
+      axios.defaults.baseURL = 'http://supervisor-student-platform.test';
+      const toast = useToast();
+
+      try {
+        const response = await axios.post("/api/register", this.form);
+        
+        toast.success('Account created successfully! Please sign in.');
+        this.$router.push('/login');
+      } catch (error) {
+        if (error.response) {
+          const errors = error.response.data.errors;
+          if (errors) {
+            Object.keys(errors).forEach(key => {
+              toast.error(errors[key][0]);
+            });
+          } else {
+            toast.error(error.response.data.message || 'Registration failed!');
+          }
+        } else {
+          toast.error('An unexpected error occurred. Please try again.');
+        }
+      } finally {
+        this.loading = false;
+      }
     },
-  };
-  </script>
-  
+  },
+};
+</script>
+
 <style scoped>
 .auth-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #f8f9fa;
+  justify-content: center;
+  padding: 1rem;
 }
 
 .auth-card {
   background: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  width: 350px;
-}
-
-h2 {
-  margin-bottom: 20px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-  text-align: left;
-}
-
-label {
-  display: block;
-  margin-bottom: 5px;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-input,
-select {
+  border-radius: 1rem;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  max-width: 450px;
 }
 
-.btn-login {
-  width: 100%;
-  padding: 10px;
-  background-color: #212529;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 10px;
+.input-group-text {
+  background-color: #f8f9fa;
+  border-color: #dee2e6;
 }
 
-.btn-login:hover {
-  background-color: #343a40;
-}
-.btn-login {
-  width: 100%;
-  padding: 10px;
-  background-color: #212529;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 10px;
+.form-control:focus,
+.form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
-.btn-login:hover {
-  background-color: #343a40;
+/* Explicit button styles to ensure visibility */
+.register-btn {
+  background-color: #0d6efd !important;
+  border-color: #0d6efd !important;
+  color: white !important;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.15s ease-in-out;
 }
 
-.auth-links {
-  margin-top: 10px;
-  font-size: 14px;
+.register-btn:hover:not(:disabled) {
+  background-color: #0b5ed7 !important;
+  border-color: #0a58ca !important;
+  transform: translateY(-1px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
 
-.auth-links a {
-  color: #007bff;
-  text-decoration: none;
+.register-btn:disabled {
+  opacity: 0.7;
+  background-color: #6c757d !important;
+  border-color: #6c757d !important;
 }
 
-.auth-links a:hover {
-  text-decoration: underline;
+.btn-primary {
+  background-color: #0d6efd !important;
+  border-color: #0d6efd !important;
+  color: white !important;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #0b5ed7 !important;
+  border-color: #0a58ca !important;
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.7;
+  background-color: #6c757d !important;
+  border-color: #6c757d !important;
+}
+
+@media (max-width: 768px) {
+  .auth-card {
+    padding: 1.5rem;
+  }
 }
 </style>

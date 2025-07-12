@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Group extends Model
 {
-    protected $fillable = ['name', 'created_by'];
+    protected $fillable = ['name', 'description', 'created_by'];
 
     public function members()
     {
@@ -17,4 +17,16 @@ class Group extends Model
     {
         return $this->hasMany(Message::class);
     }
+
+    public function lastMessage()
+    {
+        return $this->hasOne(Message::class)->latest();
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+
 }
