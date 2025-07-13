@@ -6,6 +6,7 @@ use App\Http\Controllers\ExpertiseController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectProgressController;
 use App\Http\Controllers\TaskController;
@@ -161,6 +162,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/files/bulk-delete', [FileController::class, 'bulkDelete']);
     Route::post('/files/bulk-move', [FileController::class, 'bulkMove']);
     Route::post('/files/search', [FileController::class, 'search']);
+});
+
+// Notification Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
+    Route::post('/notifications/mark-read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+    Route::delete('/notifications/{id}', [App\Http\Controllers\NotificationController::class, 'destroy']);
+    Route::delete('/notifications', [App\Http\Controllers\NotificationController::class, 'clearAll']);
+    Route::get('/notifications/unread-count', [App\Http\Controllers\NotificationController::class, 'unreadCount']);
+    Route::get('/notifications/preferences', [App\Http\Controllers\NotificationController::class, 'getPreferences']);
+    Route::post('/notifications/preferences', [App\Http\Controllers\NotificationController::class, 'updatePreferences']);
+    Route::post('/notifications/test', [App\Http\Controllers\NotificationController::class, 'testNotification']);
 });
 
 // Student API Routes

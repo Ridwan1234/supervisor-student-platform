@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Notifications\GeneralNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\NotificationService;
 
 class MessageController extends Controller
 {
@@ -74,11 +75,7 @@ class MessageController extends Controller
 
         // Send notification to receiver
         $receiver = User::find($request->receiver_id);
-        $receiver->notify(new GeneralNotification(
-            'New Message from ' . Auth::user()->name,
-            $request->message,
-            '/messages'
-        ));
+        NotificationService::newMessage(Auth::user(), $receiver, $request->message);
 
         return response()->json([
             'success' => true,
@@ -151,15 +148,7 @@ class MessageController extends Controller
         $message->load(['sender', 'attachments']);
 
         // Notify all group members except the sender
-        foreach ($group->members as $member) {
-            if ($member->id !== Auth::id()) {
-                $member->notify(new GeneralNotification(
-                    'New Message in Group: ' . $group->name,
-                    $request->message,
-                    '/groups/' . $group->id
-                ));
-            }
-        }
+        NotificationService::groupMessage($group, Auth::user(), $request->message);
 
         broadcast(new MessageSent($message))->toOthers();
 

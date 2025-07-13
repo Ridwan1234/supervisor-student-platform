@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Notifications\ProjectAssignmentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\NotificationService;
 
 class ProjectController extends Controller
 {
@@ -64,6 +65,11 @@ class ProjectController extends Controller
         // Assign students if provided
         if ($request->has('student_ids')) {
             $project->students()->attach($request->student_ids);
+            // Notify each assigned student
+            $assignedUsers = User::whereIn('id', $request->student_ids)->get();
+            foreach ($assignedUsers as $student) {
+                NotificationService::projectAssigned($project, $student);
+            }
         }
 
         return response()->json([
@@ -159,6 +165,11 @@ class ProjectController extends Controller
         // Update student assignments if provided
         if ($request->has('student_ids')) {
             $project->students()->sync($request->student_ids);
+            // Notify each assigned student
+            $assignedUsers = User::whereIn('id', $request->student_ids)->get();
+            foreach ($assignedUsers as $student) {
+                NotificationService::projectAssigned($project, $student);
+            }
         }
 
         return response()->json([
@@ -240,7 +251,7 @@ class ProjectController extends Controller
         $project->students()->attach($request->student_id);
 
         // Notify the student
-        $assignedUser->notify(new ProjectAssignmentNotification($project));
+        NotificationService::projectAssigned($project, $assignedUser);
 
         return response()->json(['message' => 'Student assigned and notified successfully.']);
     }

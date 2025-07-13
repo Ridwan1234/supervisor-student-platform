@@ -30,13 +30,18 @@
       <router-link :to="{ name: 'student-task' }" class="menu-item">
         <i class="bi bi-list-check me-3"></i>
         <span>My Tasks</span>
-        <span class="badge bg-warning ms-auto">3</span>
       </router-link>
       
       <router-link :to="{ name: 'student-messaging' }" class="menu-item">
         <i class="bi bi-chat-dots me-3"></i>
         <span>Messages</span>
-        <span class="badge bg-danger ms-auto">2</span>
+        <!-- <span class="badge bg-danger ms-auto">2</span> -->
+      </router-link>
+      
+      <router-link :to="{ name: 'notifications' }" class="menu-item">
+        <i class="bi bi-bell me-3"></i>
+        <span>Notifications</span>
+        <span v-if="unreadCount > 0" class="badge bg-danger ms-auto">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
       </router-link>
       
       <router-link :to="{ name: 'student-files' }" class="menu-item">
@@ -86,8 +91,34 @@
 </template>
 
 <script>
+import axios from 'axios';
+import notificationService from '../../services/NotificationService';
+
 export default {
   name: 'StudentSidebar',
+  data() {
+    return {
+      unreadCount: 0
+    };
+  },
+  methods: {
+    async fetchUnreadCount() {
+      this.unreadCount = await notificationService.fetchUnreadCount();
+    }
+  },
+  mounted() {
+    this.fetchUnreadCount();
+    // Subscribe to notification updates
+    notificationService.subscribe((count) => {
+      this.unreadCount = count;
+    });
+  },
+  beforeUnmount() {
+    // Unsubscribe from notification updates
+    notificationService.unsubscribe((count) => {
+      this.unreadCount = count;
+    });
+  }
 };
 </script>
 

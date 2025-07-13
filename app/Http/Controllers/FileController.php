@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Services\NotificationService;
 
 class FileController extends Controller
 {
@@ -393,6 +394,10 @@ class FileController extends Controller
                 'access_token' => Str::random(32),
             ]);
         }
+
+        // Notify the user the file is shared with
+        $sharedWith = \App\Models\User::find($request->shared_with);
+        NotificationService::fileShared($file, $sharedWith);
 
         return response()->json([
             'success' => true,

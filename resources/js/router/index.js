@@ -19,7 +19,8 @@ import StudentMessaging from '../components/Student/StudentMessaging.vue';
 import StudentProject from '../components/Student/Project.vue';
 import StudentTask from '../components/Student/Task.vue';
 import StudentFileManagement from '../components/Student/StudentFileManagement.vue';
-import Notifications from '../components/NotificationBell.vue';
+import Notifications from '../components/Notification.vue';
+import NotificationTest from '../components/NotificationTest.vue';
 import NotFound from '../components/NotFound.vue';
 import { auth } from '../utils/auth';
 
@@ -143,6 +144,11 @@ const routes = [
     path: "/notifications", 
     name: "notifications", 
     component: Notifications 
+  },
+  { 
+    path: "/notification-test", 
+    name: "notification-test", 
+    component: NotificationTest 
   },
   { 
     path: "/:pathMatch(.*)*", 

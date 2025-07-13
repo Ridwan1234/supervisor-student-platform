@@ -10,6 +10,7 @@ use App\Models\Project;
 use App\Notifications\GeneralNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\NotificationService;
 
 class TaskController extends Controller
 {
@@ -108,6 +109,9 @@ class TaskController extends Controller
             'assigned_by' => $userId,
         ]);
 
+        // Notify the assigned user
+        NotificationService::taskAssigned($task, $assignedUser);
+
         return response()->json([
             'message' => 'Task created successfully.',
             'data' => $task->load(['assignee', 'project'])
@@ -160,6 +164,9 @@ class TaskController extends Controller
             'estimated_hours' => $request->estimated_hours ?? 0,
         ]);
 
+        // Notify the assigned user about the update
+        NotificationService::taskAssigned($task, $assignedUser);
+
         return response()->json([
             'message' => 'Task updated successfully.',
             'data' => $task->load(['assignee', 'project'])
@@ -185,22 +192,15 @@ class TaskController extends Controller
 
         // Notify the assigned user
         if ($task->assigned_to) {
-            $task->assignee->notify(new GeneralNotification(
-                "Task Status Updated: {$task->title}",
-                "The status is now {$task->status}.",
-                "/tasks/{$task->id}"
-            ));
+            NotificationService::taskAssigned($task, $task->assignee);
         }
-
         // Notify group members
         if ($task->group_id) {
             $group = $task->group;
             foreach ($group->members as $member) {
-                $member->notify(new GeneralNotification(
-                    "Task Status Updated in Group: {$group->name}",
-                    "The task '{$task->title}' is now {$task->status}.",
-                    "/tasks/{$task->id}"
-                ));
+                if ($member->id !== $task->assigned_to) {
+                    NotificationService::taskAssigned($task, $member);
+                }
             }
         }
 
@@ -239,6 +239,10 @@ class TaskController extends Controller
             'feedback' => 'No feedback yet',
         ]);
 
+        // Notify the assigned user
+        $assignedUser = User::find($validated['assigned_to']);
+        NotificationService::taskAssigned($task, $assignedUser);
+
         return response()->json(['message' => 'Task assigned successfully!']);
     }
 
@@ -259,6 +263,11 @@ class TaskController extends Controller
             'status_update' => "Status updated to: {$task->status}",
             'feedback' => 'No feedback yet',
         ]);
+
+        // Notify the assigned user
+        if ($task->assigned_to) {
+            NotificationService::taskAssigned($task, $task->assignee);
+        }
 
         return response()->json(['message' => 'Task status updated successfully!']);
     }

@@ -18,20 +18,7 @@
 
           <div class="d-flex align-items-center gap-3">
             <!-- Notifications -->
-            <div class="dropdown position-relative">
-              <button class="btn btn-light position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-bell"></i>
-                <span v-if="notificationCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                  {{ notificationCount }}
-                </span>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
-                <li><h6 class="dropdown-header">Notifications</h6></li>
-                <li v-for="notification in notifications" :key="notification.id">
-                  <a class="dropdown-item" href="#">{{ notification.message }}</a>
-                </li>
-              </ul>
-            </div>
+            <NotificationBell />
 
             <!-- User Profile -->
             <div class="dropdown position-relative">
@@ -166,6 +153,7 @@
 import StudentSidebar from './StudentSidebar.vue';
 import OverviewCards from '../OverviewCards.vue';
 import ProjectsList from '../ProjectsList.vue';
+import NotificationBell from '../NotificationBell.vue';
 import { useToast } from 'vue-toastification';
 
 export default {
@@ -174,6 +162,7 @@ export default {
     StudentSidebar,
     OverviewCards,
     ProjectsList,
+    NotificationBell,
   },
   data() {
     return {

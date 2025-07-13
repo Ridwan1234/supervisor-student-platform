@@ -25,7 +25,13 @@
       <router-link :to="{ name: 'supervisor-messaging' }" class="menu-item">
         <i class="bi bi-chat-dots me-3"></i>
         <span>Messages</span>
-        <span class="badge bg-danger ms-auto">3</span>
+        <!-- <span class="badge bg-danger ms-auto">3</span> -->
+      </router-link>
+      
+      <router-link :to="{ name: 'notifications' }" class="menu-item">
+        <i class="bi bi-bell me-3"></i>
+        <span>Notifications</span>
+        <span v-if="unreadCount > 0" class="badge bg-danger ms-auto">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
       </router-link>
       
       <div class="px-3 py-2 mt-3">
@@ -50,7 +56,6 @@
       <router-link :to="{ name: 'task-management' }" class="menu-item">
         <i class="bi bi-list-check me-3"></i>
         <span>Tasks</span>
-        <span class="badge bg-warning ms-auto">5</span>
       </router-link>
       
       <router-link :to="{ name: 'file-management' }" class="menu-item">
@@ -78,10 +83,19 @@
 <script>
 import axios from 'axios';
 import { auth } from '../../utils/auth';
+import notificationService from '../../services/NotificationService';
 
 export default {
   name: 'SupervisorSidebar',
+  data() {
+    return {
+      unreadCount: 0
+    };
+  },
   methods: {
+    async fetchUnreadCount() {
+      this.unreadCount = await notificationService.fetchUnreadCount();
+    },
     handleLogout() {
       // Call logout API to invalidate token on server
       axios.post('/api/logout').catch(() => {
@@ -91,6 +105,19 @@ export default {
         auth.logout();
       });
     }
+  },
+  mounted() {
+    this.fetchUnreadCount();
+    // Subscribe to notification updates
+    notificationService.subscribe((count) => {
+      this.unreadCount = count;
+    });
+  },
+  beforeUnmount() {
+    // Unsubscribe from notification updates
+    notificationService.unsubscribe((count) => {
+      this.unreadCount = count;
+    });
   }
 };
 </script>

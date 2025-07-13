@@ -4,47 +4,7 @@
     <StudentSidebar />
     
     <!-- Main Content -->
-    <div class="main-content">
-      <!-- Top Navigation -->
-      <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
-        <div class="container-fluid">
-          <div class="d-flex align-items-center gap-3">
-            <!-- Notifications -->
-            <div class="dropdown">
-              <button class="btn btn-light position-relative" type="button" data-bs-toggle="dropdown">
-                <i class="bi bi-bell"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                  5
-                </span>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li><h6 class="dropdown-header">Notifications</h6></li>
-                <li><a class="dropdown-item" href="#">New task assigned</a></li>
-                <li><a class="dropdown-item" href="#">Task deadline reminder</a></li>
-                <li><a class="dropdown-item" href="#">Supervisor feedback received</a></li>
-              </ul>
-            </div>
-
-            <!-- User Profile -->
-            <div class="dropdown">
-              <button class="btn btn-light d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
-                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                  <i class="bi bi-person text-white"></i>
-                </div>
-                <span>John Doe</span>
-                <i class="bi bi-chevron-down"></i>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
-                <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </nav>
-
+    <div class="main-content mt-4">
       <!-- Dashboard Content -->
       <div>
         <!-- Welcome Section -->

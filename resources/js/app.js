@@ -4,6 +4,7 @@ import App from './App.vue';
 import router from './router';
 import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
+import notificationService from './services/NotificationService';
 
 // Import Bootstrap CSS and Icons
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -35,5 +36,8 @@ const toastOptions = {
 
 app.use(router);
 app.use(Toast, toastOptions);
+
+// Initialize notification service
+notificationService.init();
 
 app.mount('#app');
