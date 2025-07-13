@@ -49,7 +49,7 @@
         <span>My Files</span>
       </router-link>
       
-      <div class="px-3 py-2 mt-3">
+      <!-- <div class="px-3 py-2 mt-3">
         <small class="text-light text-uppercase fw-semibold">Academic</small>
       </div>
       
@@ -66,7 +66,7 @@
       <router-link to="#" class="menu-item">
         <i class="bi bi-graph-up me-3"></i>
         <span>Progress</span>
-      </router-link>
+      </router-link> -->
       
       <div class="px-3 py-2 mt-3">
         <small class="text-light text-uppercase fw-semibold">Account</small>
