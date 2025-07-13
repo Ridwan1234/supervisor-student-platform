@@ -14,6 +14,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Api\Admin\DashboardController as AdminDashboardController;
 
 
 
@@ -209,6 +210,8 @@ Route::middleware('auth:sanctum')->group(function () {
 // Admin API routes
 Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::get('/users', [AdminUserController::class, 'index']);
+    Route::post('/users', [AdminUserController::class, 'store']);
+    Route::get('/dashboard-stats', [AdminDashboardController::class, 'getDashboardStats']);
 });
 
 

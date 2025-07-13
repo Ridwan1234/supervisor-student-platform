@@ -126,6 +126,8 @@ export default {
           this.$router.push({ name: 'supervisor-dashboard' });
         } else if (userRole === 'student') {
           this.$router.push({ name: 'student-dashboard' });
+        } else if (userRole === 'admin') {
+          this.$router.push({ name: 'admin-dashboard' });
         } else {
           this.$router.push({ name: 'dashboard' });
         }

@@ -307,7 +307,7 @@
     <!-- Modal Backdrop -->
     <div v-if="showAttachmentModal" class="modal-backdrop fade show"></div>
 
-    <JitsiMeetModal 
+    <SimpleVideoChat 
       :visible="showJitsi" 
       :roomName="jitsiRoomName" 
       @close="showJitsi = false" 
@@ -318,13 +318,13 @@
 <script>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import axios from 'axios'
-import JitsiMeetModal from './JitsiMeetModal.vue';
+import SimpleVideoChat from './SimpleVideoChat.vue';
 
 export default {
   name: 'Messaging',
   emits: ['conversation-started', 'message-sent'],
   components: {
-    JitsiMeetModal,
+    SimpleVideoChat,
   },
   setup(props, { emit }) {
     const currentUser = ref({})

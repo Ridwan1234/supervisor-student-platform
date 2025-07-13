@@ -16,7 +16,7 @@
       </div>
       
       <iframe
-        v-else
+        v-else-if="!showFallbackVideo"
         :src="jitsiUrl"
         allow="camera; microphone; fullscreen; display-capture; autoplay"
         style="width: 100%; height: 600px; border: 0; border-radius: 8px;"
@@ -24,6 +24,18 @@
         @load="onIframeLoad"
         @error="onIframeError"
       ></iframe>
+
+      <!-- Fallback video chat option -->
+      <div v-if="showFallbackVideo" class="alert alert-info m-3 text-center">
+        <h6><i class="bi bi-info-circle me-2"></i>Alternative Video Chat Available</h6>
+        <p>Your browser does not support the full Jitsi Meet experience. You can try:</p>
+        <ul class="mb-2">
+          <li>Using a different browser (Chrome, Firefox, Safari)</li>
+          <li>Allowing camera and microphone permissions in your current browser</li>
+          <li>Using a different video conferencing platform</li>
+        </ul>
+        <button class="btn btn-primary btn-sm" @click="$emit('close')">Close</button>
+      </div>
     </div>
   </div>
 </template>
@@ -40,41 +52,39 @@ export default {
       isWebRTCSupported: true,
       retryCount: 0,
       maxRetries: 3,
-      useAlternativeServer: false
+      useAlternativeServer: false,
+      showFallbackVideo: false,
+      serverIndex: 0
     };
   },
   computed: {
     jitsiUrl() {
-      // Use alternative server for local development if needed
-      const baseUrl = this.useAlternativeServer ? 'https://jitsi.riot.im' : 'https://meet.jit.si'
+      // Try different Jitsi servers that are more permissive with HTTP
+      const servers = [
+        'https://meet.jit.si',
+        'https://jitsi.riot.im', 
+        'https://meet.ffmuc.net',
+        'https://meet.opensuse.org'
+      ];
+      
+      const baseUrl = servers[this.serverIndex] || servers[0];
       const roomName = encodeURIComponent(this.roomName)
       
-      // Configuration optimized for local development
+      // Simplified configuration for better compatibility
       const config = [
         'config.prejoinPageEnabled=false',
-        'config.disableAudioLevels=true',
-        'config.disableSimulcast=true',
-        'config.enableClosePage=true',
         'config.enableWelcomePage=false',
         'config.enableLobbyChat=false',
         'config.enablePrejoinPage=false',
         'config.startWithAudioMuted=true',
         'config.startWithVideoMuted=true',
         'config.requireDisplayName=false',
-        'config.enableNoAudioDetection=false',
-        'config.enableNoisyMicDetection=false',
-        'config.enableRemb=true',
-        'config.enableTcc=true',
-        'config.openBridgeChannel=websocket',
+        'config.enableClosePage=true',
+        // Minimal settings for better compatibility
+        'config.disableAudioLevels=true',
+        'config.disableSimulcast=true',
         'config.p2p.enabled=true',
-        'config.p2p.enableUnifiedOnChrome=true',
-        'config.websocket=wss://meet.jit.si/xmpp-websocket',
-        'config.websocketKeepAlive=30',
-        'config.websocketKeepAliveUrl=https://meet.jit.si/ping',
-        // Add HTTP-specific settings
-        'config.allowHttp=true',
-        'config.allowInsecureConnections=true',
-        'config.websocketKeepAliveUrl=http://meet.jit.si/ping'
+        'config.openBridgeChannel=websocket'
       ].join('&')
       
       return `${baseUrl}/${roomName}#${config}`
@@ -82,26 +92,28 @@ export default {
   },
   methods: {
     onIframeLoad() {
-      console.log(this.jitsiUrl);
+      console.log('Jitsi URL:', this.jitsiUrl);
       console.log('Jitsi iframe loaded successfully.');
+      console.log('Using server:', this.useAlternativeServer ? 'jitsi.riot.im' : 'meet.jit.si');
       this.retryCount = 0; // Reset retry count on successful load
     },
     onIframeError(event) {
       console.error('Jitsi iframe error:', event);
       this.retryCount++;
+      
       if (this.retryCount < this.maxRetries) {
         console.log(`Retrying connection (${this.retryCount}/${this.maxRetries})...`);
         this.retryConnection();
-      } else if (!this.useAlternativeServer) {
-        // Try alternative server
-        console.log('Trying alternative Jitsi server...');
-        this.useAlternativeServer = true;
+      } else if (this.serverIndex < 3) {
+        // Try next server
+        this.serverIndex++;
+        this.useAlternativeServer = this.serverIndex > 0;
+        console.log(`Trying Jitsi server ${this.serverIndex + 1}...`);
         this.retryCount = 0;
         this.retryConnection();
       } else {
-        console.error('Max retries reached. Jitsi connection failed.');
-        alert('Failed to connect to Jitsi Meet. Please try again later.');
-        this.$emit('close');
+        console.error('All Jitsi servers failed. Showing fallback option.');
+        this.showFallbackVideo = true;
       }
     },
     retryConnection() {

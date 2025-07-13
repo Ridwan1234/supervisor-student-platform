@@ -182,8 +182,8 @@
                         </div>
                       </div>
                     </div>
-                    <JitsiMeetModal 
-                      :visible="jitsiProjectId === project.id" 
+                    <SimpleVideoChat 
+                      :visible="showVideoChat && currentProjectId === project.id" 
                       :roomName="`project-${project.id}`" 
                       @close="closeJitsi" 
                     />
@@ -447,28 +447,21 @@
 </template>
 
 <script>
-import StudentSidebar from './StudentSidebar.vue'
-import JitsiMeetModal from '../JitsiMeetModal.vue';
+import axios from 'axios'
+import SimpleVideoChat from '../SimpleVideoChat.vue'
 
 export default {
   name: 'StudentProject',
   components: {
-    StudentSidebar,
-    JitsiMeetModal,
+    SimpleVideoChat,
   },
   data() {
     return {
-      viewMode: 'grid',
-      showProjectModal: false,
-      showProgressModal: false,
-      selectedProject: null,
-      progressUpdate: 0,
-      statusUpdate: 'in_progress',
-      progressNotes: '',
       projects: [],
-      loading: true,
-      error: null,
-      jitsiProjectId: null,
+      loading: false,
+      viewMode: 'grid',
+      showVideoChat: false,
+      currentProjectId: null
     }
   },
   computed: {
@@ -612,10 +605,12 @@ export default {
     },
 
     openJitsi(projectId) {
-      this.jitsiProjectId = projectId;
+      this.currentProjectId = projectId;
+      this.showVideoChat = true;
     },
     closeJitsi() {
-      this.jitsiProjectId = null;
+      this.currentProjectId = null;
+      this.showVideoChat = false;
     },
   }
 }

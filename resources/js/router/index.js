@@ -50,6 +50,8 @@ const routes = [
         next({ name: "supervisor-dashboard" });
       } else if (user && user.role === "student") {
         next({ name: "student-dashboard" });
+      } else if (user && user.role === "admin") {
+        next({ name: "admin-dashboard" });
       } else {
         next();
       }
@@ -190,6 +192,8 @@ router.beforeEach((to, from, next) => {
       next({ name: "supervisor-dashboard" });
     } else if (user && user.role === 'student') {
       next({ name: "student-dashboard" });
+    } else if (user && user.role === 'admin') {
+      next({ name: "admin-dashboard" });
     } else {
       next({ name: "dashboard" });
     }

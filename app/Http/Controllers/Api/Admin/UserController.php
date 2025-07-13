@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -52,5 +53,36 @@ class UserController extends Controller
         $users = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
         return response()->json($users);
+    }
+
+    /**
+     * Create a new user
+     */
+    public function store(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user || $user->role !== 'admin') {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:student,supervisor,admin',
+        ]);
+
+        $newUser = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+        ]);
+
+        return response()->json([
+            'message' => 'User created successfully',
+            'user' => $newUser
+        ], 201);
     }
 } 

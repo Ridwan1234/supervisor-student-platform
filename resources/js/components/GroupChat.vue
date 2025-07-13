@@ -1,7 +1,7 @@
 <template>
     <div>
         <h2>{{ group.name }}</h2>
-        <button class="btn btn-outline-primary mb-3" @click="showJitsi = true">
+        <button class="btn btn-outline-primary mb-3" @click="showVideoChat = true">
             <i class="bi bi-camera-video me-1"></i> Start Video Call
         </button>
         <ul>
@@ -15,30 +15,33 @@
             <button type="submit">Send</button>
         </form>
 
-        <JitsiMeetModal :visible="showJitsi" :roomName="`group-${groupId}`" @close="showJitsi = false" />
+        <SimpleVideoChat :visible="showVideoChat" :roomName="`group-${groupId}`" @close="showVideoChat = false" />
     </div>
 </template>
 
 <script>
 import axios from "axios";
-import JitsiMeetModal from './JitsiMeetModal.vue';
+import SimpleVideoChat from "./SimpleVideoChat.vue";
 
 export default {
-    components: { JitsiMeetModal },
-    props: {
-        groupId: {
-            type: Number,
-            required: true,
-        },
+  name: "GroupChat",
+  components: {
+    SimpleVideoChat,
+  },
+  props: {
+    groupId: {
+      type: [String, Number],
+      required: true,
     },
-    data() {
-        return {
-            messages: [],
-            newMessage: "",
-            group: {},
-            showJitsi: false,
-        };
-    },
+  },
+  data() {
+    return {
+      group: {},
+      messages: [],
+      newMessage: "",
+      showVideoChat: false,
+    };
+  },
     methods: {
         fetchGroupMessages() {
             axios
