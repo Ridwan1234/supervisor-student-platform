@@ -118,11 +118,11 @@
           </div>
         </div>
         <div class="chat-actions">
-          <button class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-telephone"></i>
+          <button class="btn btn-sm btn-outline-primary me-2" @click="openJitsiCall">
+            <i class="bi bi-camera-video"></i> Video Call
           </button>
           <button class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-camera-video"></i>
+            <i class="bi bi-telephone"></i>
           </button>
           <button class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-three-dots-vertical"></i>
@@ -306,16 +306,26 @@
 
     <!-- Modal Backdrop -->
     <div v-if="showAttachmentModal" class="modal-backdrop fade show"></div>
+
+    <JitsiMeetModal 
+      :visible="showJitsi" 
+      :roomName="jitsiRoomName" 
+      @close="showJitsi = false" 
+    />
   </div>
 </template>
 
 <script>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import axios from 'axios'
+import JitsiMeetModal from './JitsiMeetModal.vue';
 
 export default {
   name: 'Messaging',
   emits: ['conversation-started', 'message-sent'],
+  components: {
+    JitsiMeetModal,
+  },
   setup(props, { emit }) {
     const currentUser = ref({})
     const individualConversations = ref([])
@@ -334,6 +344,8 @@ export default {
     const selectedNewUser = ref('')
     const newConversationMessage = ref('')
     const availableUsers = ref([])
+    const showJitsi = ref(false)
+    const jitsiRoomName = ref('')
 
     // Computed properties
     const filteredIndividualConversations = computed(() => {
@@ -649,6 +661,18 @@ export default {
       }, 5000)
     }
 
+    const openJitsiCall = () => {
+      if (!selectedConversation.value) return;
+      if (selectedType.value === 'group') {
+        jitsiRoomName.value = `group-${selectedConversation.value.id}`;
+      } else {
+        // 1:1 chat: use sorted user IDs for uniqueness
+        const ids = [currentUser.value.id, selectedConversation.value.id].sort((a, b) => a - b);
+        jitsiRoomName.value = `user-${ids[0]}-${ids[1]}`;
+      }
+      showJitsi.value = true;
+    }
+
     // Lifecycle
     onMounted(() => {
       fetchCurrentUser()
@@ -693,7 +717,10 @@ export default {
       availableUsers,
       startNewConversation,
       fetchConversations,
-      refreshMessages: fetchMessages
+      refreshMessages: fetchMessages,
+      showJitsi,
+      jitsiRoomName,
+      openJitsiCall,
     }
   }
 }

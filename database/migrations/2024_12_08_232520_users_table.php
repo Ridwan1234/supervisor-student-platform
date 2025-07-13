@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        
-
+        // Update the 'role' column to allow 'admin' as a value
+        Schema::table('users', function (Blueprint $table) {
+            $table->enum('role', ['admin', 'supervisor', 'student'])->default('student')->change();
+        });
     }
 
     /**
@@ -20,6 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        // Revert the 'role' column to only allow 'supervisor' and 'student'
+        Schema::table('users', function (Blueprint $table) {
+            $table->enum('role', ['supervisor', 'student'])->default('student')->change();
+        });
     }
 };

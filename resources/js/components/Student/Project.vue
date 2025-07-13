@@ -171,12 +171,22 @@
                             <i class="bi bi-calendar me-1"></i>
                             Due: {{ formatDate(project.dueDate) }}
                           </small>
-                          <button class="btn btn-primary btn-sm" @click="viewProject(project)">
-                            View Details
-                          </button>
+                          <div>
+                            <button class="btn btn-outline-primary btn-sm me-2" @click="openJitsi(project.id)">
+                              <i class="bi bi-camera-video"></i> Video Call
+                            </button>
+                            <button class="btn btn-primary btn-sm" @click="viewProject(project)">
+                              View Details
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
+                    <JitsiMeetModal 
+                      :visible="jitsiProjectId === project.id" 
+                      :roomName="`project-${project.id}`" 
+                      @close="closeJitsi" 
+                    />
                   </div>
                 </div>
 
@@ -438,11 +448,13 @@
 
 <script>
 import StudentSidebar from './StudentSidebar.vue'
+import JitsiMeetModal from '../JitsiMeetModal.vue';
 
 export default {
   name: 'StudentProject',
   components: {
-    StudentSidebar
+    StudentSidebar,
+    JitsiMeetModal,
   },
   data() {
     return {
@@ -455,7 +467,8 @@ export default {
       progressNotes: '',
       projects: [],
       loading: true,
-      error: null
+      error: null,
+      jitsiProjectId: null,
     }
   },
   computed: {
@@ -596,7 +609,14 @@ export default {
     showToast(message, type = 'info') {
       // You can implement a toast notification system here
       console.log(`${type.toUpperCase()}: ${message}`)
-    }
+    },
+
+    openJitsi(projectId) {
+      this.jitsiProjectId = projectId;
+    },
+    closeJitsi() {
+      this.jitsiProjectId = null;
+    },
   }
 }
 </script>

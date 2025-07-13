@@ -40,6 +40,14 @@ class DatabaseSeeder extends Seeder
             'expertise_areas' => json_encode(['Machine Learning', 'Web Development', 'Database Systems']),
         ]);
 
+        // Create admin user
+        User::create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'password' => bcrypt('adminpassword'),
+            'role' => 'admin',
+        ]);
+
         // Create student users
         $students = [
             [

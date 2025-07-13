@@ -151,6 +151,18 @@ const routes = [
     component: NotificationTest 
   },
   { 
+    path: '/admin-dashboard',
+    name: 'admin-dashboard',
+    component: () => import('../components/Admin/AdminDashboard.vue'),
+    meta: { requiresAdmin: true }
+  },
+  {
+    path: '/admin/users',
+    name: 'admin-users',
+    component: () => import('../components/Admin/AdminUserManagement.vue'),
+    meta: { requiresAdmin: true }
+  },
+  { 
     path: "/:pathMatch(.*)*", 
     name: "NotFound", 
     component: NotFound 
@@ -180,6 +192,13 @@ router.beforeEach((to, from, next) => {
       next({ name: "student-dashboard" });
     } else {
       next({ name: "dashboard" });
+    }
+  } else if (to.meta && to.meta.requiresAdmin) {
+    const user = auth.getUser();
+    if (user && user.role === 'admin') {
+      next();
+    } else {
+      next({ name: 'NotFound' }); // Or redirect to a forbidden page
     }
   } else {
     next();

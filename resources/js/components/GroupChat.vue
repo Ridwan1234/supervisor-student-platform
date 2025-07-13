@@ -1,6 +1,9 @@
 <template>
     <div>
         <h2>{{ group.name }}</h2>
+        <button class="btn btn-outline-primary mb-3" @click="showJitsi = true">
+            <i class="bi bi-camera-video me-1"></i> Start Video Call
+        </button>
         <ul>
             <li v-for="msg in messages" :key="msg.id">
                 <strong>{{ msg.sender.name }}:</strong> {{ msg.message }}
@@ -11,13 +14,17 @@
             <input v-model="newMessage" placeholder="Type a message..." />
             <button type="submit">Send</button>
         </form>
+
+        <JitsiMeetModal :visible="showJitsi" :roomName="`group-${groupId}`" @close="showJitsi = false" />
     </div>
 </template>
 
 <script>
 import axios from "axios";
+import JitsiMeetModal from './JitsiMeetModal.vue';
 
 export default {
+    components: { JitsiMeetModal },
     props: {
         groupId: {
             type: Number,
@@ -29,6 +36,7 @@ export default {
             messages: [],
             newMessage: "",
             group: {},
+            showJitsi: false,
         };
     },
     methods: {

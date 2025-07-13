@@ -13,6 +13,7 @@ use App\Http\Controllers\TaskController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 
 
 
@@ -203,6 +204,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/supervisor/projects/{projectId}', [App\Http\Controllers\Api\SupervisorController::class, 'updateProject']);
     Route::put('/supervisor/tasks/{taskId}', [App\Http\Controllers\Api\SupervisorController::class, 'updateTask']);
     Route::get('/supervisor/available-students', [App\Http\Controllers\Api\SupervisorController::class, 'getAvailableStudents']);
+});
+
+// Admin API routes
+Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
+    Route::get('/users', [AdminUserController::class, 'index']);
 });
 
 
