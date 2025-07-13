@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Student;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
@@ -31,7 +31,7 @@ class Project extends Model
 
     public function students()
     {
-        return $this->belongsToMany(Student::class, 'student_project_assignments', 'project_id', 'student_id');
+        return $this->belongsToMany(User::class, 'student_project_assignments', 'project_id', 'student_id');
     }
 
     public function tasks()

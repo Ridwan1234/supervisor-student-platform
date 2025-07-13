@@ -143,8 +143,14 @@
               <i :class="file.icon"></i>
             </div>
             <div class="file-actions">
+              <button @click="openPreviewModal(file)" class="btn btn-sm btn-outline-info">
+                <i class="bi bi-eye"></i>
+              </button>
               <button @click="downloadFile(file)" class="btn btn-sm btn-outline-primary">
                 <i class="bi bi-download"></i>
+              </button>
+              <button @click="openVersionModal(file)" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-clock-history"></i>
               </button>
               <button @click="deleteFile(file)" class="btn btn-sm btn-outline-danger">
                 <i class="bi bi-trash"></i>
@@ -293,15 +299,37 @@
 
     <!-- Modal Backdrop -->
     <div v-if="showUploadModal" class="modal-backdrop fade show"></div>
+
+    <!-- File Version Modal -->
+    <FileVersionModal
+      :visible="showVersionModal"
+      :file="selectedFileForVersion"
+      @close="closeVersionModal"
+      @version-uploaded="handleVersionUploaded"
+      @preview-file="handlePreviewFile"
+    />
+
+    <!-- File Preview Modal -->
+    <FilePreviewModal
+      :visible="showPreviewModal"
+      :file="selectedFileForPreview"
+      @close="closePreviewModal"
+    />
   </div>
 </template>
 
 <script>
 import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
+import FileVersionModal from './FileVersionModal.vue'
+import FilePreviewModal from './FilePreviewModal.vue'
 
 export default {
   name: 'FileManagement',
+  components: {
+    FileVersionModal,
+    FilePreviewModal
+  },
   setup() {
     const files = ref([])
     const loading = ref(false)
@@ -322,6 +350,14 @@ export default {
     const folders = ref([])
     const fileTypes = ref([])
     const projects = ref([])
+    
+    // Version modal
+    const showVersionModal = ref(false)
+    const selectedFileForVersion = ref(null)
+    
+    // Preview modal
+    const showPreviewModal = ref(false)
+    const selectedFileForPreview = ref(null)
 
     // Computed properties
     const filteredFiles = computed(() => {
@@ -502,7 +538,7 @@ export default {
       const formData = new FormData()
       
       selectedFiles.value.forEach(file => {
-        formData.append('files[]', file)
+        formData.append('files', file)
       })
       
       if (uploadFolder.value) {
@@ -617,6 +653,38 @@ export default {
       }, 5000)
     }
 
+    // Version modal methods
+    const openVersionModal = (file) => {
+      selectedFileForVersion.value = file
+      showVersionModal.value = true
+    }
+
+    const closeVersionModal = () => {
+      showVersionModal.value = false
+      selectedFileForVersion.value = null
+    }
+
+    const handleVersionUploaded = () => {
+      fetchFiles()
+      fetchFileStats()
+    }
+
+    const handlePreviewFile = (file) => {
+      // Open preview modal with the file
+      openPreviewModal(file)
+    }
+
+    // Preview modal methods
+    const openPreviewModal = (file) => {
+      selectedFileForPreview.value = file
+      showPreviewModal.value = true
+    }
+
+    const closePreviewModal = () => {
+      showPreviewModal.value = false
+      selectedFileForPreview.value = null
+    }
+
     // Watchers
     watch([searchQuery, selectedFolder, selectedFileType, selectedProject], () => {
       currentPage.value = 1
@@ -667,7 +735,19 @@ export default {
       formatDate,
       getFileIcon,
       getFileTypeIcon,
-      showToast
+      showToast,
+      // Version modal
+      showVersionModal,
+      selectedFileForVersion,
+      openVersionModal,
+      closeVersionModal,
+      handleVersionUploaded,
+      handlePreviewFile,
+      // Preview modal
+      showPreviewModal,
+      selectedFileForPreview,
+      openPreviewModal,
+      closePreviewModal
     }
   }
 }

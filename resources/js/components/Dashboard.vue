@@ -33,14 +33,14 @@
             </div>
 
             <!-- Notifications -->
-            <div class="dropdown">
-              <button class="btn btn-light position-relative" type="button" data-bs-toggle="dropdown">
+            <div class="dropdown position-relative">
+              <button class="btn btn-light position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-bell"></i>
                 <span v-if="notificationCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                   {{ notificationCount }}
                 </span>
               </button>
-              <ul class="dropdown-menu dropdown-menu-end">
+              <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
                 <li><h6 class="dropdown-header">Notifications</h6></li>
                 <li v-for="notification in notifications" :key="notification.id">
                   <a class="dropdown-item" href="#">{{ notification.message }}</a>
@@ -49,13 +49,13 @@
             </div>
 
             <!-- User Profile -->
-            <div class="dropdown">
-              <button class="btn btn-light d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+            <div class="dropdown position-relative">
+              <button class="btn btn-light d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="https://via.placeholder.com/32" alt="Profile" class="rounded-circle" width="32" height="32" />
                 <span class="d-none d-md-block">{{ user?.name || 'User' }}</span>
                 <i class="bi bi-chevron-down"></i>
               </button>
-              <ul class="dropdown-menu dropdown-menu-end">
+              <ul class="dropdown-menu dropdown-menu-end profile-dropdown">
                 <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
                 <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
@@ -319,5 +319,41 @@ export default {
   .sidebar.show {
     transform: translateX(0);
   }
+}
+
+/* Dropdown positioning fixes */
+.notification-dropdown,
+.profile-dropdown {
+  z-index: 1050 !important;
+  position: absolute !important;
+  top: 100% !important;
+  right: 0 !important;
+  min-width: 280px;
+  margin-top: 0.125rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.375rem;
+}
+
+.notification-dropdown {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.dropdown-menu.show {
+  display: block !important;
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Ensure navbar has proper z-index */
+.navbar {
+  z-index: 1030;
+  position: relative;
+}
+
+/* Dropdown container positioning */
+.dropdown.position-relative {
+  position: relative !important;
 }
 </style>

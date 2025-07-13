@@ -65,7 +65,7 @@ class TaskController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'assigned_to' => 'nullable|string',
+            'assigned_to' => 'required|exists:users,id', // Must be a valid user ID
             'project_id' => 'nullable|exists:projects,id',
             'priority' => 'nullable|in:low,medium,high,urgent',
             'status' => 'nullable|in:pending,in_progress,completed,overdue',
@@ -76,6 +76,24 @@ class TaskController extends Controller
 
         $user = Auth::user();
         $userId = $user ? $user->id : 1; // Default to user ID 1 if not authenticated
+        
+        // Verify that the assigned user is a student
+        $assignedUser = User::find($request->assigned_to);
+        if (!$assignedUser || $assignedUser->role !== 'student') {
+            return response()->json([
+                'message' => 'Assigned user must be a student.',
+                'error' => 'invalid_assignment'
+            ], 422);
+        }
+        
+        // Verify that the creator is a supervisor
+        // if ($user->role !== 'supervisor') {
+        //     return response()->json([
+        //         'message' => 'Only supervisors can create tasks.',
+        //         'error' => 'unauthorized'
+        //     ], 403);
+        // }
+        
         $task = Task::create([
             'title' => $request->title,
             'description' => $request->description,
@@ -92,7 +110,7 @@ class TaskController extends Controller
 
         return response()->json([
             'message' => 'Task created successfully.',
-            'data' => $task
+            'data' => $task->load(['assignee', 'project'])
         ], 201);
     }
 
@@ -101,7 +119,7 @@ class TaskController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'assigned_to' => 'nullable|string',
+            'assigned_to' => 'required|exists:users,id',
             'project_id' => 'nullable|exists:projects,id',
             'priority' => 'nullable|in:low,medium,high,urgent',
             'status' => 'nullable|in:pending,in_progress,completed,overdue',
@@ -109,6 +127,25 @@ class TaskController extends Controller
             'progress' => 'nullable|integer|min:0|max:100',
             'estimated_hours' => 'nullable|numeric|min:0',
         ]);
+
+        $user = Auth::user();
+        
+        // Verify that the assigned user is a student
+        $assignedUser = User::find($request->assigned_to);
+        if (!$assignedUser || $assignedUser->role !== 'student') {
+            return response()->json([
+                'message' => 'Assigned user must be a student.',
+                'error' => 'invalid_assignment'
+            ], 422);
+        }
+        
+        // Verify that the updater is a supervisor
+        if ($user->role !== 'supervisor') {
+            return response()->json([
+                'message' => 'Only supervisors can update tasks.',
+                'error' => 'unauthorized'
+            ], 403);
+        }
 
         $task = Task::findOrFail($id);
         $task->update([
@@ -125,7 +162,7 @@ class TaskController extends Controller
 
         return response()->json([
             'message' => 'Task updated successfully.',
-            'data' => $task
+            'data' => $task->load(['assignee', 'project'])
         ]);
     }
 

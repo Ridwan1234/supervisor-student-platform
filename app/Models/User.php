@@ -38,13 +38,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Task::class, 'assigned_to'); // Tasks assigned to this user
     }
-
-    // Project relationships
-    public function assignedProjects()
-    {
-        return $this->hasMany(Project::class, 'supervisor_id');
-    }
-
+    
     public function supervisedProjects()
     {
         return $this->hasMany(Project::class, 'supervisor_id');

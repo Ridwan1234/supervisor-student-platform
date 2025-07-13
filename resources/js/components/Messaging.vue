@@ -5,11 +5,19 @@
       <div class="sidebar-header">
         <h5 class="mb-0">
           <i class="bi bi-chat-dots me-2"></i>
-          Messages
+          Conversations
         </h5>
       </div>
       
       <div class="sidebar-content">
+        <!-- New Conversation Button -->
+        <div class="mb-3">
+          <button @click="showNewConversationModal = true" class="btn btn-primary w-100">
+            <i class="bi bi-plus-circle me-2"></i>
+            New Conversation
+          </button>
+        </div>
+
         <!-- Search -->
         <div class="search-box mb-3">
           <div class="input-group">
@@ -178,7 +186,10 @@
       </div>
 
       <!-- Message Input -->
-      <div v-if="selectedConversation" class="message-input">
+      <div class="message-input">
+        <div v-if="!selectedConversation" class="alert alert-info mb-2">
+          Please select a conversation to start messaging
+        </div>
         <div class="input-group">
           <button @click="showAttachmentModal = true" class="btn btn-outline-secondary" type="button">
             <i class="bi bi-paperclip"></i>
@@ -189,10 +200,52 @@
             class="form-control" 
             placeholder="Type your message..."
             @keyup.enter="sendMessage"
+            :disabled="!selectedConversation"
           >
-          <button @click="sendMessage" class="btn btn-primary" type="button" :disabled="!newMessage.trim()">
+          <button @click="sendMessage" class="btn btn-primary" type="button" :disabled="!newMessage.trim() || !selectedConversation">
             <i class="bi bi-send"></i>
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Conversation Modal -->
+    <div class="modal fade" :class="{ show: showNewConversationModal }" :style="{ display: showNewConversationModal ? 'block' : 'none' }" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="bi bi-chat-dots me-2"></i>
+              Start New Conversation
+            </h5>
+            <button @click="showNewConversationModal = false" type="button" class="btn-close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Select User</label>
+              <select v-model="selectedNewUser" class="form-select">
+                <option value="">Choose a user...</option>
+                <option v-for="user in availableUsers" :key="user.id" :value="user.id">
+                  {{ user.name }} ({{ user.role }})
+                </option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Initial Message</label>
+              <textarea 
+                v-model="newConversationMessage" 
+                class="form-control" 
+                rows="3" 
+                placeholder="Type your first message..."
+              ></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button @click="showNewConversationModal = false" type="button" class="btn btn-secondary">Cancel</button>
+            <button @click="startNewConversation" type="button" class="btn btn-primary" :disabled="!selectedNewUser || !newConversationMessage.trim()">
+              Start Conversation
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -262,7 +315,8 @@ import axios from 'axios'
 
 export default {
   name: 'Messaging',
-  setup() {
+  emits: ['conversation-started', 'message-sent'],
+  setup(props, { emit }) {
     const currentUser = ref({})
     const individualConversations = ref([])
     const groupConversations = ref([])
@@ -276,6 +330,10 @@ export default {
     const showAttachmentModal = ref(false)
     const selectedAttachments = ref([])
     const messagesContainer = ref(null)
+    const showNewConversationModal = ref(false)
+    const selectedNewUser = ref('')
+    const newConversationMessage = ref('')
+    const availableUsers = ref([])
 
     // Computed properties
     const filteredIndividualConversations = computed(() => {
@@ -312,6 +370,53 @@ export default {
       }
     }
 
+    const fetchAvailableUsers = async () => {
+      try {
+        const response = await axios.get('/api/available-users')
+        availableUsers.value = response.data.data || []
+      } catch (error) {
+        console.error('Error fetching available users:', error)
+      }
+    }
+
+    const startNewConversation = async () => {
+      if (!selectedNewUser.value || !newConversationMessage.value.trim()) return
+      
+      sending.value = true
+      try {
+        const response = await axios.post('/api/send-message', {
+          receiver_id: selectedNewUser.value,
+          message: newConversationMessage.value
+        })
+        
+        // Add the new conversation to the list
+        const newUser = availableUsers.value.find(u => u.id == selectedNewUser.value)
+        if (newUser) {
+          newUser.lastMessage = response.data.data
+          newUser.unreadCount = 0
+          individualConversations.value.unshift(newUser)
+        }
+        
+        // Select the new conversation
+        await selectConversation(newUser, 'individual')
+        
+        // Reset modal
+        showNewConversationModal.value = false
+        selectedNewUser.value = ''
+        newConversationMessage.value = ''
+        
+        showToast('Conversation started successfully', 'success')
+        
+        // Emit event for wrapper components
+        emit('conversation-started')
+      } catch (error) {
+        console.error('Error starting conversation:', error)
+        showToast('Error starting conversation', 'error')
+      } finally {
+        sending.value = false
+      }
+    }
+
     const selectConversation = async (conversation, type) => {
       selectedConversation.value = conversation
       selectedType.value = type
@@ -331,10 +436,14 @@ export default {
             receiver_id: selectedConversation.value.id
           })
         } else {
-          response = await axios.post(`/api/groups/${selectedConversation.value.id}/messages`)
+          response = await axios.get(`/api/groups/${selectedConversation.value.id}/messages`)
         }
         
-        messages.value = response.data.data || response.data
+        if (selectedType.value === 'individual') {
+          messages.value = response.data.data || response.data
+        } else {
+          messages.value = response.data.data.messages || response.data.messages
+        }
         markMessagesAsRead()
       } catch (error) {
         console.error('Error fetching messages:', error)
@@ -365,6 +474,9 @@ export default {
         newMessage.value = ''
         scrollToBottom()
         showToast('Message sent successfully', 'success')
+        
+        // Emit event for wrapper components
+        emit('message-sent')
       } catch (error) {
         console.error('Error sending message:', error)
         showToast('Error sending message', 'error')
@@ -541,6 +653,7 @@ export default {
     onMounted(() => {
       fetchCurrentUser()
       fetchConversations()
+      fetchAvailableUsers()
     })
 
     // Watchers
@@ -573,7 +686,14 @@ export default {
       formatTime,
       formatFileSize,
       getFileIcon,
-      showToast
+      showToast,
+      showNewConversationModal,
+      selectedNewUser,
+      newConversationMessage,
+      availableUsers,
+      startNewConversation,
+      fetchConversations,
+      refreshMessages: fetchMessages
     }
   }
 }

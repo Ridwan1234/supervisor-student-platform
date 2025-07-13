@@ -18,14 +18,14 @@
 
           <div class="d-flex align-items-center gap-3">
             <!-- Notifications -->
-            <div class="dropdown">
-              <button class="btn btn-light position-relative" type="button" data-bs-toggle="dropdown">
+            <div class="dropdown position-relative">
+              <button class="btn btn-light position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-bell"></i>
                 <span v-if="notificationCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                   {{ notificationCount }}
                 </span>
               </button>
-              <ul class="dropdown-menu dropdown-menu-end">
+              <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
                 <li><h6 class="dropdown-header">Notifications</h6></li>
                 <li v-for="notification in notifications" :key="notification.id">
                   <a class="dropdown-item" href="#">{{ notification.message }}</a>
@@ -34,13 +34,13 @@
             </div>
 
             <!-- User Profile -->
-            <div class="dropdown">
-              <button class="btn btn-light d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+            <div class="dropdown position-relative">
+              <button class="btn btn-light d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="https://via.placeholder.com/32" alt="Profile" class="rounded-circle" width="32" height="32" />
                 <span class="d-none d-md-block">{{ user?.name || 'Student' }}</span>
                 <i class="bi bi-chevron-down"></i>
               </button>
-              <ul class="dropdown-menu dropdown-menu-end">
+              <ul class="dropdown-menu dropdown-menu-end profile-dropdown">
                 <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
                 <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
@@ -73,17 +73,57 @@
         </div>
 
         <!-- My Projects Section -->
-        <div class="row">
+        <!-- <div class="row">
           <div class="col-12">
             <div class="card">
-              <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0 fw-bold">My Projects</h5>
-                <router-link :to="{ name: 'student-project' }" class="btn btn-success btn-sm">
-                  <i class="bi bi-eye me-1"></i>View All
-                </router-link>
-              </div>
               <div class="card-body">
                 <ProjectsList />
+              </div>
+            </div>
+          </div>
+        </div> -->
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="card h-100">
+              <div class="card-body text-center">
+                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                  <i class="bi bi-folder2-open text-white fs-4"></i>
+                </div>
+                <h6 class="card-title">My Files</h6>
+                <p class="card-text text-muted small">Upload and manage your project files</p>
+                <router-link :to="{ name: 'student-files' }" class="btn btn-primary btn-sm">
+                  View Files
+                </router-link>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100">
+              <div class="card-body text-center">
+                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                  <i class="bi bi-folder text-white fs-4"></i>
+                </div>
+                <h6 class="card-title">My Projects</h6>
+                <p class="card-text text-muted small">View your assigned projects</p>
+                <router-link :to="{ name: 'student-project' }" class="btn btn-success btn-sm">
+                  View Projects
+                </router-link>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100">
+              <div class="card-body text-center">
+                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                  <i class="bi bi-list-check text-white fs-4"></i>
+                </div>
+                <h6 class="card-title">My Tasks</h6>
+                <p class="card-text text-muted small">Manage your assigned tasks</p>
+                <router-link :to="{ name: 'student-task' }" class="btn btn-warning btn-sm">
+                  View Tasks
+                </router-link>
               </div>
             </div>
           </div>
@@ -238,5 +278,41 @@ export default {
   .sidebar.show {
     transform: translateX(0);
   }
+}
+
+/* Dropdown positioning fixes */
+.notification-dropdown,
+.profile-dropdown {
+  z-index: 1050 !important;
+  position: absolute !important;
+  top: 100% !important;
+  right: 0 !important;
+  min-width: 280px;
+  margin-top: 0.125rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.375rem;
+}
+
+.notification-dropdown {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.dropdown-menu.show {
+  display: block !important;
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Ensure navbar has proper z-index */
+.navbar {
+  z-index: 1030;
+  position: relative;
+}
+
+/* Dropdown container positioning */
+.dropdown.position-relative {
+  position: relative !important;
 }
 </style>

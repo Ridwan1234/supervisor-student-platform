@@ -29,7 +29,7 @@
             </div>
 
             <!-- Add New Expertise Button -->
-            <button class="btn btn-primary" @click="showCreateModal = true">
+            <button class="btn btn-primary" @click="openCreateModal">
               <i class="bi bi-plus me-2"></i>Add Expertise
             </button>
           </div>
@@ -141,7 +141,7 @@
           </div>
           <h5 class="text-muted">No expertise found</h5>
           <p class="text-muted">Add your first expertise area to get started</p>
-          <button class="btn btn-primary" @click="showCreateModal = true">
+          <button class="btn btn-primary" @click="openCreateModal">
             <i class="bi bi-plus me-2"></i>Add Expertise
           </button>
         </div>
@@ -149,7 +149,7 @@
     </main>
 
     <!-- Create/Edit Expertise Modal -->
-    <div class="modal fade" id="expertiseModal" tabindex="-1" v-if="showCreateModal || editingExpertise">
+    <div class="modal fade" id="expertiseModal" tabindex="-1" v-show="showCreateModal || editingExpertise">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -319,6 +319,7 @@ export default {
         icon: expertise.icon || 'bi bi-award',
         tagsString: expertise.tags ? expertise.tags.join(', ') : ''
       };
+      this.openCreateModal();
     },
     async deleteExpertise(expertise) {
       if (confirm(`Are you sure you want to delete "${expertise.name}"?`)) {
@@ -332,7 +333,50 @@ export default {
         }
       }
     },
+    openCreateModal() {
+      this.showCreateModal = true;
+      this.$nextTick(() => {
+        const modal = document.getElementById('expertiseModal');
+        if (modal && window.bootstrap) {
+          try {
+            const bootstrapModal = new window.bootstrap.Modal(modal);
+            bootstrapModal.show();
+          } catch (error) {
+            console.error('Error opening modal:', error);
+            // Fallback: just show the modal with CSS
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            document.body.classList.add('modal-open');
+            const backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade show';
+            document.body.appendChild(backdrop);
+          }
+        } else {
+          console.warn('Modal or Bootstrap not available');
+        }
+      });
+    },
+    
     closeModal() {
+      const modal = document.getElementById('expertiseModal');
+      if (modal && window.bootstrap) {
+        try {
+          const bootstrapModal = window.bootstrap.Modal.getInstance(modal);
+          if (bootstrapModal) {
+            bootstrapModal.hide();
+          }
+        } catch (error) {
+          console.error('Error closing modal:', error);
+          // Fallback: hide the modal with CSS
+          modal.style.display = 'none';
+          modal.classList.remove('show');
+          document.body.classList.remove('modal-open');
+          const backdrop = document.querySelector('.modal-backdrop');
+          if (backdrop) {
+            backdrop.remove();
+          }
+        }
+      }
       this.showCreateModal = false;
       this.editingExpertise = null;
       this.resetForm();

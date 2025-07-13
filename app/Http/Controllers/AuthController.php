@@ -68,4 +68,14 @@ class AuthController extends Controller
             'role' => $user->role, // Assuming 'role' field exists in the database
         ], 200);
     }
+
+    public function logout(Request $request)
+    {
+        // Revoke the current user's token
+        $request->user()->currentAccessToken()->delete();
+        
+        return response()->json([
+            'message' => 'Logged out successfully'
+        ]);
+    }
 }

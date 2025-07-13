@@ -55,12 +55,7 @@
                 <h4 class="mb-1">My Projects</h4>
                 <p class="text-muted mb-0">Manage and track your academic projects</p>
               </div>
-              <div class="d-flex gap-2">
-                <button class="btn btn-outline-primary btn-sm">
-                  <i class="bi bi-plus me-1"></i>
-                  New Project
-                </button>
-              </div>
+             
             </div>
           </div>
         </div>
@@ -85,7 +80,7 @@
 
         <!-- Project Overview Cards -->
         <div v-else class="row mb-4">
-          <div class="col-md-3 col-sm-6 mb-3">
+          <div class="col-md-4 col-sm-6 mb-3">
             <div class="card bg-primary text-white">
               <div class="card-body">
                 <div class="d-flex justify-content-between">
@@ -101,7 +96,7 @@
             </div>
           </div>
           
-          <div class="col-md-3 col-sm-6 mb-3">
+          <div class="col-md-4 col-sm-6 mb-3">
             <div class="card bg-success text-white">
               <div class="card-body">
                 <div class="d-flex justify-content-between">
@@ -117,7 +112,7 @@
             </div>
           </div>
           
-          <div class="col-md-3 col-sm-6 mb-3">
+          <div class="col-md-4 col-sm-6 mb-3">
             <div class="card bg-warning text-white">
               <div class="card-body">
                 <div class="d-flex justify-content-between">
@@ -127,22 +122,6 @@
                   </div>
                   <div class="align-self-center">
                     <i class="bi bi-clock display-6"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card bg-info text-white">
-              <div class="card-body">
-                <div class="d-flex justify-content-between">
-                  <div>
-                    <h6 class="card-title">Total Tasks</h6>
-                    <h3 class="mb-0">{{ totalTasks }}</h3>
-                  </div>
-                  <div class="align-self-center">
-                    <i class="bi bi-list-task display-6"></i>
                   </div>
                 </div>
               </div>
@@ -265,9 +244,6 @@
                         </td>
                         <td>
                           <div class="d-flex align-items-center">
-                            <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
-                              {{ project.supervisor.charAt(0).toUpperCase() }}
-                            </div>
                             {{ project.supervisor }}
                           </div>
                         </td>

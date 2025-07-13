@@ -38,12 +38,22 @@ class GroupController extends Controller
 
     public function getGroups()
     {
-        $groups = Group::whereHas('members', function ($query) {
-            $query->where('user_id', Auth::id());
-        })
-        ->with(['members', 'creator', 'lastMessage'])
-        ->orderBy('updated_at', 'desc')
-        ->get();
+        $user = Auth::user();
+        
+        // If user is supervisor, show all groups they can manage
+        if ($user->role === 'supervisor') {
+            $groups = Group::with(['members', 'creator', 'lastMessage'])
+                ->orderBy('updated_at', 'desc')
+                ->get();
+        } else {
+            // For students, show only groups they're members of
+            $groups = Group::whereHas('members', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
+            ->with(['members', 'creator', 'lastMessage'])
+            ->orderBy('updated_at', 'desc')
+            ->get();
+        }
 
         return response()->json([
             'success' => true,
@@ -98,9 +108,10 @@ class GroupController extends Controller
     public function addMembers(Request $request, $id)
     {
         $group = Group::findOrFail($id);
+        $user = Auth::user();
 
-        // Check if user is the creator of the group
-        if ($group->created_by !== Auth::id()) {
+        // Check if user is the creator of the group or a supervisor
+        if ($group->created_by !== Auth::id() && $user->role !== 'supervisor') {
             return response()->json(['error' => 'Access denied'], 403);
         }
 
@@ -167,9 +178,10 @@ class GroupController extends Controller
     public function deleteGroup($id)
     {
         $group = Group::findOrFail($id);
+        $user = Auth::user();
 
-        // Check if user is the creator of the group
-        if ($group->created_by !== Auth::id()) {
+        // Check if user is the creator of the group or a supervisor
+        if ($group->created_by !== Auth::id() && $user->role !== 'supervisor') {
             return response()->json(['error' => 'Access denied'], 403);
         }
 
@@ -187,11 +199,11 @@ class GroupController extends Controller
         $query = User::query();
 
         // Filter by user role
-        if ($user->role === 'supervisor') {
-            $query->where('role', 'student');
-        } else {
-            $query->where('role', 'supervisor');
-        }
+        // if ($user->role === 'supervisor') {
+        //     $query->where('role', 'student');
+        // } else {
+        //     $query->where('role', 'supervisor');
+        // }
 
         $users = $query->select('id', 'name', 'email', 'role')
             ->orderBy('name')

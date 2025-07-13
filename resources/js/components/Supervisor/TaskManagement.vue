@@ -102,14 +102,11 @@
                         </td>
                         <td>
                           <div class="d-flex align-items-center">
-                            <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
-                              {{ task.assigned_to ? task.assigned_to.charAt(0).toUpperCase() : 'U' }}
-                            </div>
-                            {{ task.assigned_to || 'Unassigned' }}
+                            {{ getAssignedUserName(task) }}
                           </div>
                         </td>
                         <td>
-                          <span class="badge bg-info">{{ task.project_name || 'No Project' }}</span>
+                          <span class="badge bg-info">{{ task.project }}</span>
                         </td>
                         <td>
                           <span :class="getPriorityClass(task.priority)">
@@ -231,7 +228,7 @@
                     <label class="form-label">Assigned To *</label>
                     <select class="form-select" v-model="taskForm.assigned_to" required>
                       <option value="">Select Student</option>
-                      <option v-for="student in students" :key="student.id" :value="student.name">
+                      <option v-for="student in students" :key="student.id" :value="student.user_id">
                         {{ student.name }}
                       </option>
                     </select>
@@ -243,7 +240,7 @@
                     <select class="form-select" v-model="taskForm.project_id" required>
                       <option value="">Select Project</option>
                       <option v-for="project in projects" :key="project.id" :value="project.id">
-                        {{ project.name }}
+                        {{ project.title }}
                       </option>
                     </select>
                   </div>
@@ -368,9 +365,9 @@
                 <div class="col-md-6">
                   <h6>Task Information</h6>
                   <ul class="list-unstyled">
-                    <li><strong>Assigned To:</strong> {{ selectedTask.assigned_to || 'Unassigned' }}</li>
-                    <li><strong>Project:</strong> {{ selectedTask.project_name || 'No Project' }}</li>
-                    <li><strong>Due Date:</strong> {{ formatDate(selectedTask.due_date) }}</li>
+                    <li><strong>Assigned To:</strong> {{ getAssignedUserName(selectedTask) }}</li>
+                    <li><strong>Project:</strong> {{ selectedTask.project }}</li>
+                    <li><strong>Due Date:</strong> {{ formatDate(selectedTask.dueDate) }}</li>
                     <li><strong>Estimated Hours:</strong> {{ selectedTask.estimated_hours || 0 }}h</li>
                   </ul>
                 </div>
@@ -410,6 +407,7 @@
 <script>
 import SupervisorSidebar from './SupervisorSidebar.vue';
 import axios from 'axios';
+import { auth } from '../../utils/auth';
 
 export default {
   name: 'TaskManagement',
@@ -468,6 +466,13 @@ export default {
     }
   },
   async mounted() {
+    // Check if user is authenticated
+    if (!auth.isAuthenticated()) {
+      this.showToast('Please login to access this page', 'error');
+      this.$router.push('/login');
+      return;
+    }
+    
     await this.fetchData();
   },
   methods: {
@@ -488,12 +493,19 @@ export default {
     },
     async fetchTasks() {
       try {
+        console.log('Fetching tasks with token:', localStorage.getItem('token'));
         const response = await axios.get('/api/supervisor/tasks');
         this.tasks = response.data.data || response.data;
         this.filterTasks();
       } catch (error) {
         console.error('Error fetching tasks:', error);
-        this.showToast('Error loading tasks', 'error');
+        if (error.response && error.response.status === 401) {
+          this.showToast('Authentication failed. Please login again.', 'error');
+          // Redirect to login
+          this.$router.push('/login');
+        } else {
+          this.showToast('Error loading tasks', 'error');
+        }
       }
     },
     async fetchStudents() {
@@ -502,6 +514,10 @@ export default {
         this.students = response.data.data || response.data;
       } catch (error) {
         console.error('Error fetching students:', error);
+        if (error.response && error.response.status === 401) {
+          this.showToast('Authentication failed. Please login again.', 'error');
+          this.$router.push('/login');
+        }
       }
     },
     async fetchProjects() {
@@ -510,6 +526,10 @@ export default {
         this.projects = response.data.data || response.data;
       } catch (error) {
         console.error('Error fetching projects:', error);
+        if (error.response && error.response.status === 401) {
+          this.showToast('Authentication failed. Please login again.', 'error');
+          this.$router.push('/login');
+        }
       }
     },
     toggleSidebar() {
@@ -523,8 +543,8 @@ export default {
         filtered = filtered.filter(task => 
           task.title.toLowerCase().includes(query) ||
           (task.description && task.description.toLowerCase().includes(query)) ||
-          (task.assigned_to && task.assigned_to.toLowerCase().includes(query)) ||
-          (task.project_name && task.project_name.toLowerCase().includes(query))
+          (this.getAssignedUserName(task).toLowerCase().includes(query)) ||
+          (this.getProjectName(task).toLowerCase().includes(query))
         )
       }
 
@@ -583,13 +603,54 @@ export default {
       return new Date(date).toLocaleDateString()
     },
     
+    getAssignedUserName(task) {
+      if (!task.assigned_to) return 'Unassigned';
+      
+      // If assigned_to is an object with user data
+      if (typeof task.assigned_to === 'object' && task.assigned_to.name) {
+        return task.assigned_to.name;
+      }
+
+      return task.assigned_to;
+      
+      // If assigned_to is a user ID, find the user
+      // const user = this.students.find(s => s.id == task.assigned_to);
+      // return user ? user.name : 'Unknown User';
+    },
+    
+    getAssignedUserInitial(task) {
+      if (!task.assigned_to) return 'U';
+      
+      // If assigned_to is an object with user data
+      if (typeof task.assigned_to === 'object' && task.assigned_to.name) {
+        return task.assigned_to.name.charAt(0).toUpperCase();
+      }
+      
+      // If assigned_to is a user ID, find the user
+      const user = this.students.find(s => s.id == task.assigned_to);
+      return user ? user.name.charAt(0).toUpperCase() : 'U';
+    },
+    
+    getProjectName(task) {
+      console.log(task);
+      // if (!task.project_id) return 'No Project';
+      
+      // // If project is an object with project data
+      // if (typeof task.project === 'object' && task.project.title) {
+      //   return task.project.title;
+      // }
+
+      return task.project.title;
+     
+    },
+    
     editTask(task) {
       this.isEditing = true
       this.selectedTask = task
       this.taskForm = { 
         title: task.title,
         description: task.description,
-        assigned_to: task.assigned_to,
+        assigned_to: typeof task.assigned_to === 'object' ? task.assigned_to.id : task.assigned_to,
         project_id: task.project_id,
         priority: task.priority,
         status: task.status,
@@ -625,6 +686,7 @@ export default {
       }
       
       this.saving = true;
+      console.log(this.taskForm);
       try {
         if (this.isEditing) {
           await axios.put(`/api/tasks/${this.selectedTask.id}`, this.taskForm);

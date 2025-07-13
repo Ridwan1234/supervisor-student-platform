@@ -55,12 +55,6 @@
                 <h4 class="mb-1">My Tasks</h4>
                 <p class="text-muted mb-0">Manage and track your assigned tasks</p>
               </div>
-              <div class="d-flex gap-2">
-                <button class="btn btn-outline-primary btn-sm" @click="showCreateTaskModal = true">
-                  <i class="bi bi-plus me-1"></i>
-                  Create Task
-                </button>
-              </div>
             </div>
           </div>
         </div>

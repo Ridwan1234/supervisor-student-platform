@@ -93,6 +93,7 @@
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
+import { auth } from '../../utils/auth';
 
 export default {
   data() {
@@ -115,11 +116,10 @@ export default {
         const response = await axios.post("/api/login", this.form);
         const token = response.data.token;
         
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+        // Use auth utility to set token and user
+        auth.setToken(token);
+        auth.setUser(response.data.user);
         this.currentUserId = response.data.user.id;
-
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
         const userRole = response.data.role;
         if (userRole === 'supervisor') {

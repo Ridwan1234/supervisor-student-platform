@@ -10,12 +10,18 @@ import Tasks from '../components/Supervisor/Task.vue';
 import TaskManagement from '../components/Supervisor/TaskManagement.vue';
 import ExpertiseManagement from '../components/Supervisor/ExpertiseManagement.vue';
 import ProjectManagement from '../components/Supervisor/ProjectManagement.vue';
+import GroupManagement from '../components/Supervisor/GroupManagement.vue';
 import FileManagement from '../components/FileManagement.vue';
+import SupervisorFileManagement from '../components/Supervisor/SupervisorFileManagement.vue';
 import Messaging from '../components/Messaging.vue';
+import SupervisorMessaging from '../components/Supervisor/SupervisorMessaging.vue';
+import StudentMessaging from '../components/Student/StudentMessaging.vue';
 import StudentProject from '../components/Student/Project.vue';
 import StudentTask from '../components/Student/Task.vue';
+import StudentFileManagement from '../components/Student/StudentFileManagement.vue';
 import Notifications from '../components/NotificationBell.vue';
 import NotFound from '../components/NotFound.vue';
+import { auth } from '../utils/auth';
 
 const routes = [
   { 
@@ -38,10 +44,10 @@ const routes = [
     name: "dashboard",
     component: Dashboard,
     beforeEnter: (to, from, next) => {
-      const role = localStorage.getItem("role");
-      if (role === "supervisor") {
+      const user = auth.getUser();
+      if (user && user.role === "supervisor") {
         next({ name: "supervisor-dashboard" });
-      } else if (role === "student") {
+      } else if (user && user.role === "student") {
         next({ name: "student-dashboard" });
       } else {
         next();
@@ -84,14 +90,39 @@ const routes = [
     component: ProjectManagement 
   },
   { 
+    path: "/group-management", 
+    name: "group-management", 
+    component: GroupManagement 
+  },
+  { 
     path: "/file-management", 
     name: "file-management", 
-    component: FileManagement 
+    component: SupervisorFileManagement 
   },
   { 
     path: "/messaging", 
     name: "messaging", 
-    component: Messaging 
+    component: Messaging,
+    beforeEnter: (to, from, next) => {
+      const user = auth.getUser();
+      if (user && user.role === "supervisor") {
+        next({ name: "supervisor-messaging" });
+      } else if (user && user.role === "student") {
+        next({ name: "student-messaging" });
+      } else {
+        next();
+      }
+    },
+  },
+  { 
+    path: "/supervisor-messaging", 
+    name: "supervisor-messaging", 
+    component: SupervisorMessaging 
+  },
+  { 
+    path: "/student-messaging", 
+    name: "student-messaging", 
+    component: StudentMessaging 
   },
   { 
     path: "/student-project", 
@@ -102,6 +133,11 @@ const routes = [
     path: "/student-task", 
     name: "student-task", 
     component: StudentTask 
+  },
+  { 
+    path: "/student-files", 
+    name: "student-files", 
+    component: StudentFileManagement 
   },
   { 
     path: "/notifications", 
@@ -121,9 +157,24 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem("token");
-  if (to.name !== "login" && !token) {
+  const isAuthenticated = auth.isAuthenticated();
+  
+  // Public routes that don't require authentication
+  const publicRoutes = ['login', 'register', 'home'];
+  
+  if (!isAuthenticated && !publicRoutes.includes(to.name)) {
+    // Redirect to login if not authenticated and trying to access protected route
     next({ name: "login" });
+  } else if (isAuthenticated && (to.name === 'login' || to.name === 'register')) {
+    // Redirect authenticated users away from login/register pages
+    const user = auth.getUser();
+    if (user && user.role === 'supervisor') {
+      next({ name: "supervisor-dashboard" });
+    } else if (user && user.role === 'student') {
+      next({ name: "student-dashboard" });
+    } else {
+      next({ name: "dashboard" });
+    }
   } else {
     next();
   }

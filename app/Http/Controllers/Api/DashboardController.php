@@ -32,8 +32,10 @@ class DashboardController extends Controller
         $projects = Project::where('supervisor_id', $user->id)->get();
         
         // Get all students assigned to supervisor's projects
-        $students = User::whereHas('assignedProjects', function($query) use ($user) {
-            $query->where('supervisor_id', $user->id);
+        $students = Student::whereHas('assignedProjects', function($query) use ($user) {
+            $query->whereHas('project', function($query2) use($user){
+                $query2->where('supervisor_id', $user->id);
+            });
         })->count();
         
         // Get tasks assigned by supervisor
@@ -238,8 +240,11 @@ class DashboardController extends Controller
 
     private function getSupervisorOverviewCards($user)
     {
-        $students = User::whereHas('assignedProjects', function($query) use ($user) {
-            $query->where('supervisor_id', $user->id);
+        // Count unique students assigned to supervisor's projects
+        $students = Student::whereHas('assignedProjects', function($query) use ($user) {
+            $query->whereHas('project', function($query2) use($user){
+                $query2->where('supervisor_id', $user->id);
+            });
         })->count();
         
         $pendingTasks = Task::where('assigned_by', $user->id)

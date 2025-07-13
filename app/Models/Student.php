@@ -11,8 +11,17 @@ class Student extends Model
 
     protected $guarded = ['id', 'created_at'];
 
-    public function assignedProjects()
+     // Project relationships
+     public function assignedProjects()
+     {
+         return $this->hasMany(StudentProjectAssignment::class);
+     }
+
+     // Student/Supervisor specific relationships
+    public function user()
     {
-        return $this->belongsToMany(Project::class, 'student_project_assignments', 'student_id', 'project_id');
+        return $this->belongsTo(User::class);
     }
+
+
 }

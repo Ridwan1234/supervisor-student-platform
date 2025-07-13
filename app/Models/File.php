@@ -19,11 +19,22 @@ class File extends Model
         'task_id',
         'folder',
         'description',
-        'mime_type'
+        'mime_type',
+        'version',
+        'parent_id',
+        'is_public',
+        'download_count',
+        'view_count',
+        'tags'
     ];
 
     protected $casts = [
         'size' => 'integer',
+        'version' => 'integer',
+        'is_public' => 'boolean',
+        'download_count' => 'integer',
+        'view_count' => 'integer',
+        'tags' => 'array',
     ];
 
     public function uploader()
@@ -39,6 +50,26 @@ class File extends Model
     public function task()
     {
         return $this->belongsTo(Task::class);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(File::class, 'parent_id');
+    }
+
+    public function versions()
+    {
+        return $this->hasMany(File::class, 'parent_id')->orderBy('version', 'desc');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(FileComment::class);
+    }
+
+    public function shares()
+    {
+        return $this->hasMany(FileShare::class);
     }
 
     public function getFormattedSizeAttribute()

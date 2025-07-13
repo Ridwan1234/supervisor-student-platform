@@ -83,13 +83,14 @@ class SupervisorController extends Controller
                     'title' => $task->title,
                     'description' => $task->description,
                     'project' => $task->project ? $task->project->title : 'No Project',
-                    'assignedTo' => $task->assignedTo ? $task->assignedTo->name : 'Unassigned',
+                    'assigned_to' => $task->assignedTo ? $task->assignedTo->name : 'Unassigned',
                     'priority' => $task->priority,
                     'status' => $task->status,
                     'progress' => $task->progress,
                     'assignedDate' => $task->created_at->format('Y-m-d'),
                     'dueDate' => $task->due_date->format('Y-m-d'),
                     'lastUpdated' => $task->updated_at->format('Y-m-d'),
+                    'estimated_hours' => $task->estimated_hours,
                     'daysLeft' => $daysLeft
                 ];
             });
@@ -105,18 +106,24 @@ class SupervisorController extends Controller
         $user = Auth::user();
         
         // Get students assigned to supervisor's projects
-        $students = User::whereHas('assignedProjects', function($query) use ($user) {
-            $query->where('supervisor_id', $user->id);
+        $students = Student::whereHas('assignedProjects', function($query) use ($user) {
+            $query->whereHas('project', function($query2) use($user){
+                $query2->where('supervisor_id', $user->id);
+            });
         })
-        ->with(['assignedProjects' => function($query) use ($user) {
-            $query->where('supervisor_id', $user->id);
-        }])
+        ->with('assignedProjects', function($query) use ($user) {
+            $query->whereHas('project', function($query2) use($user){
+                $query2->where('supervisor_id', $user->id);
+            });
+        })
+        ->with('user')
         ->get()
         ->map(function($student) {
             return [
                 'id' => $student->id,
-                'name' => $student->name,
-                'email' => $student->email,
+                'name' => $student->user->name,
+                'email' => $student->user->email,
+                'user_id'   => $student->user_id,
                 'projects' => $student->assignedProjects->map(function($project) {
                     return [
                         'id' => $project->id,
@@ -287,7 +294,7 @@ class SupervisorController extends Controller
             ->join('projects', 'student_project_assignments.project_id', '=', 'projects.id')
             ->where('projects.supervisor_id', $user->id)
             ->pluck('student_project_assignments.student_id');
-        
+
         $availableStudents = User::whereNotIn('id', $assignedStudentIds)
             ->where('role', 'student')
             ->get(['id', 'name', 'email']);

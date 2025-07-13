@@ -22,12 +22,7 @@
         <span>Dashboard</span>
       </router-link>
       
-      <router-link to="#" class="menu-item">
-        <i class="bi bi-folder me-3"></i>
-        <span>Projects</span>
-      </router-link>
-      
-      <router-link :to="{ name: 'messaging' }" class="menu-item">
+      <router-link :to="{ name: 'supervisor-messaging' }" class="menu-item">
         <i class="bi bi-chat-dots me-3"></i>
         <span>Messages</span>
         <span class="badge bg-danger ms-auto">3</span>
@@ -44,18 +39,23 @@
       
       <router-link :to="{name: 'project-management'}" class="menu-item">
         <i class="bi bi-kanban me-3"></i>
-        <span>Project Management</span>
+        <span>Projects</span>
+      </router-link>
+      
+      <router-link :to="{ name: 'group-management' }" class="menu-item">
+        <i class="bi bi-people-fill me-3"></i>
+        <span>Groups</span>
       </router-link>
       
       <router-link :to="{ name: 'task-management' }" class="menu-item">
         <i class="bi bi-list-check me-3"></i>
-        <span>Task Management</span>
+        <span>Tasks</span>
         <span class="badge bg-warning ms-auto">5</span>
       </router-link>
       
       <router-link :to="{ name: 'file-management' }" class="menu-item">
         <i class="bi bi-file-earmark me-3"></i>
-        <span>File Management</span>
+        <span>Files</span>
       </router-link>
       
       <div class="px-3 py-2 mt-3">
@@ -67,17 +67,31 @@
         <span>Settings</span>
       </router-link>
       
-      <router-link :to="{ name: 'logout' }" class="menu-item text-danger">
+      <a href="#" @click.prevent="handleLogout" class="menu-item text-danger">
         <i class="bi bi-box-arrow-right me-3"></i>
         <span>Logout</span>
-      </router-link>
+      </a>
     </nav>
   </aside>
 </template>
 
 <script>
+import axios from 'axios';
+import { auth } from '../../utils/auth';
+
 export default {
   name: 'SupervisorSidebar',
+  methods: {
+    handleLogout() {
+      // Call logout API to invalidate token on server
+      axios.post('/api/logout').catch(() => {
+        // Ignore errors during logout
+      }).finally(() => {
+        // Always logout locally
+        auth.logout();
+      });
+    }
+  }
 };
 </script>
 

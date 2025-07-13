@@ -33,10 +33,15 @@
         <span class="badge bg-warning ms-auto">3</span>
       </router-link>
       
-      <router-link :to="{ name: 'messaging' }" class="menu-item">
+      <router-link :to="{ name: 'student-messaging' }" class="menu-item">
         <i class="bi bi-chat-dots me-3"></i>
         <span>Messages</span>
         <span class="badge bg-danger ms-auto">2</span>
+      </router-link>
+      
+      <router-link :to="{ name: 'student-files' }" class="menu-item">
+        <i class="bi bi-folder2-open me-3"></i>
+        <span>My Files</span>
       </router-link>
       
       <div class="px-3 py-2 mt-3">
