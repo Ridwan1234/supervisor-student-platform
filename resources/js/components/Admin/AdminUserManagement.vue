@@ -1,16 +1,49 @@
 <template>
-  <div class="container py-4">
-    <div class="mb-4 d-flex justify-content-between align-items-center">
-      <div>
-        <h2 class="fw-bold mb-1">
-          <i class="bi bi-people me-2"></i> User Management
-        </h2>
-        <p class="text-muted mb-0">View, search, and manage all users on the platform.</p>
+  <div class="admin-user-management">
+    <!-- Sidebar -->
+    <AdminSidebar />
+    
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Header -->
+      <div class="header bg-white shadow-sm border-bottom">
+        <div class="container-fluid">
+          <div class="d-flex justify-content-between align-items-center py-3">
+            <div>
+              <h4 class="mb-0 fw-bold text-primary">
+                <i class="bi bi-people me-2"></i>User Management
+              </h4>
+              <p class="text-muted mb-0">View, search, and manage all users on the platform.</p>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <NotificationBell />
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-person-circle me-1"></i>
+                  {{ currentUser?.name || 'Admin' }}
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#" @click="logout">Logout</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <router-link to="/admin-dashboard" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-arrow-left me-1"></i> Back to Admin Dashboard
-      </router-link>
-    </div>
+
+              <div class="mb-4 d-flex justify-content-between align-items-center">
+          <div>
+            <h2 class="fw-bold mb-1">
+              <i class="bi bi-people me-2"></i> User Management
+            </h2>
+            <p class="text-muted mb-0">View, search, and manage all users on the platform.</p>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary" @click="showCreateUserModal = true">
+              <i class="bi bi-person-plus me-1"></i> Add User
+            </button>
+          </div>
+        </div>
     <div class="card mb-4">
       <div class="card-body">
         <div class="row g-2 mb-3">
@@ -106,16 +139,56 @@
         <div v-if="total > 0" class="text-center text-muted mt-3">
           Showing {{ (currentPage - 1) * perPage + 1 }} to {{ Math.min(currentPage * perPage, total) }} of {{ total }} users
         </div>
+              </div>
       </div>
+
+      <!-- Create User Modal -->
+      <AdminCreateUser 
+        :visible="showCreateUserModal"
+        @close="showCreateUserModal = false"
+        @user-created="onUserCreated"
+      />
+
+      <!-- User Detail Modal -->
+      <AdminUserDetailModal
+        :visible="showUserDetailModal"
+        :user-id="selectedUserId"
+        @close="showUserDetailModal = false"
+        @edit-user="editUser"
+      />
+
+      <!-- User Edit Modal -->
+      <AdminUserEditModal
+        :visible="showUserEditModal"
+        :user="selectedUser"
+        @close="showUserEditModal = false"
+        @user-updated="onUserUpdated"
+      />
     </div>
   </div>
 </template>
 
 <script>
+import AdminCreateUser from './AdminCreateUser.vue';
+import AdminUserDetailModal from './AdminUserDetailModal.vue';
+import AdminUserEditModal from './AdminUserEditModal.vue';
+import AdminSidebar from './AdminSidebar.vue';
+import NotificationBell from '../NotificationBell.vue';
+import { auth } from '../../utils/auth';
+import { apiGet, apiPatch, handleApiError } from '../../utils/api';
+
 export default {
   name: 'AdminUserManagement',
+  components: {
+    AdminCreateUser,
+    AdminUserDetailModal,
+    AdminUserEditModal,
+    AdminSidebar,
+    NotificationBell
+  },
   data() {
     return {
+      currentUser: null,
       search: '',
       roleFilter: 'all',
       users: [],
@@ -125,7 +198,12 @@ export default {
       perPage: 15,
       total: 0,
       totalPages: 0,
-      searchTimeout: null
+      searchTimeout: null,
+      showCreateUserModal: false,
+      showUserDetailModal: false,
+      showUserEditModal: false,
+      selectedUserId: null,
+      selectedUser: null
     };
   },
   computed: {
@@ -141,6 +219,7 @@ export default {
     }
   },
   mounted() {
+    this.currentUser = auth.getUser();
     this.fetchUsers();
   },
   methods: {
@@ -162,21 +241,7 @@ export default {
           params.append('role', this.roleFilter);
         }
 
-        const response = await fetch(`/api/admin/users?${params}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          if (response.status === 403) {
-            throw new Error('Access denied. Admin privileges required.');
-          }
-          throw new Error('Failed to fetch users');
-        }
-
-        const data = await response.json();
+        const data = await apiGet(`/api/admin/users?${params}`);
         this.users = data.data;
         this.currentPage = data.current_page;
         this.perPage = data.per_page;
@@ -184,7 +249,7 @@ export default {
         this.totalPages = data.last_page;
       } catch (error) {
         console.error('Error fetching users:', error);
-        this.error = error.message;
+        this.error = handleApiError(error, 'fetching users');
       } finally {
         this.loading = false;
       }
@@ -218,25 +283,69 @@ export default {
     },
     
     viewUser(user) {
-      // TODO: Implement user detail view
-      console.log('View user:', user);
+      this.selectedUserId = user.id;
+      this.showUserDetailModal = true;
     },
     
     editUser(user) {
-      // TODO: Implement user edit
-      console.log('Edit user:', user);
+      this.selectedUser = user;
+      this.showUserEditModal = true;
     },
     
-    deactivateUser(user) {
-      // TODO: Implement user deactivation
-      console.log('Deactivate user:', user);
+    async deactivateUser(user) {
+      if (!confirm(`Are you sure you want to ${user.status === 'active' ? 'deactivate' : 'activate'} ${user.name}?`)) {
+        return;
+      }
+      
+      try {
+        await apiPatch(`/api/admin/users/${user.id}/toggle-status`, {});
+        // Refresh the user list
+        this.fetchUsers();
+        alert(`User ${user.name} has been ${user.status === 'active' ? 'deactivated' : 'activated'} successfully.`);
+      } catch (error) {
+        console.error('Error updating user status:', error);
+        alert(handleApiError(error, 'updating user status'));
+      }
+    },
+
+    onUserUpdated() {
+      this.showUserEditModal = false;
+      this.fetchUsers(); // Refresh the user list
+      alert('User updated successfully!');
+    },
+
+    logout() {
+      auth.logout();
+      this.$router.push('/login');
     }
+  },
+  
+  onUserCreated() {
+    this.showCreateUserModal = false;
+    this.fetchUsers(); // Refresh the user list
   }
 };
 </script>
 
 <style scoped>
+.admin-user-management {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  background-color: #f8f9fa;
+  margin-left: 280px;
+}
+
 .table td, .table th {
   vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+  }
 }
 </style> 

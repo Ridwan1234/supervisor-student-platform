@@ -259,10 +259,19 @@ export default {
       try {
         loading.value = true
         const response = await axios.get('/api/admin/dashboard-stats')
-        stats.value = response.data.stats
-        recentActivity.value = response.data.recentActivity || []
+        
+        if (response.data && response.data.stats) {
+          stats.value = response.data.stats
+          recentActivity.value = response.data.recentActivity || []
+        } else {
+          console.warn('Invalid dashboard data format')
+        }
       } catch (error) {
         console.error('Error fetching admin dashboard data:', error)
+        if (error.response) {
+          console.error('Response status:', error.response.status)
+          console.error('Response data:', error.response.data)
+        }
       } finally {
         loading.value = false
       }
@@ -271,9 +280,15 @@ export default {
     const fetchCurrentUser = async () => {
       try {
         const response = await axios.get('/api/user')
-        currentUser.value = response.data
+        if (response.data) {
+          currentUser.value = response.data
+        }
       } catch (error) {
         console.error('Error fetching current user:', error)
+        if (error.response) {
+          console.error('Response status:', error.response.status)
+          console.error('Response data:', error.response.data)
+        }
       }
     }
 

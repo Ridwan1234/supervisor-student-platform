@@ -64,17 +64,17 @@
       </form>
 
       <!-- Divider -->
-      <div class="text-center mb-3">
+      <!-- <div class="text-center mb-3">
         <span class="text-muted">or</span>
-      </div>
+      </div> -->
 
       <!-- Social Login -->
-      <div class="d-grid gap-2 mb-4">
+      <!-- <div class="d-grid gap-2 mb-4">
         <button class="btn btn-outline-secondary">
           <i class="bi bi-google me-2"></i>
           Continue with Google
         </button>
-      </div>
+      </div> -->
 
       <!-- Register Link -->
       <div class="text-center">

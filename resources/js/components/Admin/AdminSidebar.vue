@@ -98,8 +98,7 @@ export default {
 <style scoped>
 .admin-sidebar {
   width: 280px;
-  background: white;
-  border-right: 1px solid #dee2e6;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -107,12 +106,22 @@ export default {
   left: 0;
   top: 0;
   z-index: 1000;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar-header {
   padding: 1.5rem;
-  border-bottom: 1px solid #dee2e6;
-  background: #f8f9fa;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-header h5 {
+  color: white;
+  margin: 0;
+}
+
+.sidebar-header i {
+  color: #ffd700;
 }
 
 .sidebar-nav {
@@ -121,38 +130,47 @@ export default {
 }
 
 .nav-link {
-  color: #6c757d;
+  color: rgba(255, 255, 255, 0.8);
   padding: 0.75rem 1.5rem;
   border: none;
   background: transparent;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   text-decoration: none;
   display: flex;
   align-items: center;
+  margin: 0.25rem 1rem;
+  border-radius: 8px;
 }
 
 .nav-link:hover {
-  color: #0d6efd;
-  background-color: #f8f9fa;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
   text-decoration: none;
+  transform: translateX(5px);
 }
 
 .nav-link.active {
-  color: #0d6efd;
-  background-color: #e3f2fd;
-  border-right: 3px solid #0d6efd;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-left: 4px solid #ffd700;
   font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .nav-link i {
   width: 20px;
   text-align: center;
+  margin-right: 0.75rem;
 }
 
 .sidebar-footer {
   padding: 1rem 1.5rem;
-  border-top: 1px solid #dee2e6;
-  background: #f8f9fa;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-footer small {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 @media (max-width: 768px) {

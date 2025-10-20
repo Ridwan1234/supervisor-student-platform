@@ -164,6 +164,54 @@ const routes = [
     component: () => import('../components/Admin/AdminUserManagement.vue'),
     meta: { requiresAdmin: true }
   },
+  {
+    path: '/admin/roles',
+    name: 'admin-roles',
+    component: () => import('../components/Admin/AdminRoleManagement.vue'),
+    meta: { requiresAdmin: true }
+  },
+  {
+    path: '/admin/projects',
+    name: 'admin-projects',
+    component: () => import('../components/Admin/AdminProjectOverview.vue'),
+    meta: { requiresAdmin: true }
+  },
+  {
+    path: '/admin/tasks',
+    name: 'admin-tasks',
+    component: () => import('../components/Admin/AdminTaskOverview.vue'),
+    meta: { requiresAdmin: true }
+  },
+  {
+    path: '/admin/files',
+    name: 'admin-files',
+    component: () => import('../components/Admin/AdminFileManagement.vue'),
+    meta: { requiresAdmin: true }
+  },
+  {
+    path: '/admin/logs',
+    name: 'admin-logs',
+    component: () => import('../components/Admin/AdminSystemLogs.vue'),
+    meta: { requiresAdmin: true }
+  },
+  {
+    path: '/admin/backups',
+    name: 'admin-backups',
+    component: () => import('../components/Admin/AdminBackups.vue'),
+    meta: { requiresAdmin: true }
+  },
+  {
+    path: '/admin/settings',
+    name: 'admin-settings',
+    component: () => import('../components/Admin/AdminSettings.vue'),
+    meta: { requiresAdmin: true }
+  },
+  {
+    path: '/admin/reports',
+    name: 'admin-reports',
+    component: () => import('../components/Admin/AdminReports.vue'),
+    meta: { requiresAdmin: true }
+  },
   { 
     path: "/:pathMatch(.*)*", 
     name: "NotFound", 

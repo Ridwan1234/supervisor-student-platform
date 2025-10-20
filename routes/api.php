@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Api\Admin\TaskController as AdminTaskController;
+use App\Http\Controllers\Api\Admin\FileController as AdminFileController;
+use App\Http\Controllers\Api\Admin\LogController as AdminLogController;
+use App\Http\Controllers\Api\Admin\BackupController as AdminBackupController;
 
 
 
@@ -210,8 +214,30 @@ Route::middleware('auth:sanctum')->group(function () {
 // Admin API routes
 Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
     Route::get('/users', [AdminUserController::class, 'index']);
+    Route::get('/users/{id}', [AdminUserController::class, 'show']);
     Route::post('/users', [AdminUserController::class, 'store']);
+    Route::patch('/users/{id}/toggle-status', [AdminUserController::class, 'toggleStatus']);
     Route::get('/dashboard-stats', [AdminDashboardController::class, 'getDashboardStats']);
+    Route::get('/projects', [App\Http\Controllers\Api\Admin\ProjectController::class, 'index']);
+    Route::get('/projects/{id}', [App\Http\Controllers\Api\Admin\ProjectController::class, 'show']);
+    Route::get('/project-stats', [App\Http\Controllers\Api\Admin\ProjectController::class, 'getStats']);
+    Route::get('/tasks', [AdminTaskController::class, 'index']);
+    Route::get('/tasks/{id}', [AdminTaskController::class, 'show']);
+    Route::get('/task-stats', [AdminTaskController::class, 'getStats']);
+
+    // File Management
+    Route::get('/files', [AdminFileController::class, 'index']);
+    Route::get('/files/{id}', [AdminFileController::class, 'show']);
+    Route::get('/file-stats', [AdminFileController::class, 'getStats']);
+
+    // System Logs
+    Route::get('/logs', [AdminLogController::class, 'index']);
+    Route::get('/logs/{id}', [AdminLogController::class, 'show']);
+
+    // Backups
+    Route::get('/backups', [AdminBackupController::class, 'index']);
+    Route::post('/backups', [AdminBackupController::class, 'store']);
+    Route::get('/backup-stats', [AdminBackupController::class, 'getStats']);
 });
 
 
